@@ -185,3 +185,104 @@ a.btn { text-decoration: none; }
 .facts dt { color: var(--ink-2); font-size: 14px; padding-top: 1px; }
 .facts dd { margin: 0; overflow-wrap: anywhere; font-weight: 400; }
 @media (max-width: 480px) { .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; } .facts dd { margin-bottom: 8px; } }
+
+/* ── Easier for older field workers (2026-11-23, decisions.md) ──────────────────────────
+   Larger text (18px base), 56px tap targets, field borders at 3:1+ contrast so boxes are
+   visible in sunlight, bigger checkboxes and photo buttons, a visual step bar, and a
+   "Back" word beside the arrow. Overrides the sizes above. */
+:root { --tap: 56px; --field-line: #66717f; }   /* 4.9:1 on white */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --field-line: #8a97a8; } }
+:root[data-theme="dark"] { --field-line: #8a97a8; }
+body { font-size: 18px; }
+h1 { font-size: 30px; }
+.step { font-size: 16px; margin-bottom: -10px; }
+.steps { display: flex; gap: 6px; margin: 0 0 -6px; }
+.steps span { flex: 1; height: 8px; border-radius: 999px; background: var(--line); }
+.steps span.on { background: var(--accent); }
+.lede, .hint, .row small, .card p { font-size: 16px; }
+.label, legend { font-size: 18px; }
+.err { font-size: 17px; }
+.err svg { width: 20px; height: 20px; }
+.banner { font-size: 15px; }
+.signal { font-size: 16px; }
+.langbtn { font-size: 17px; }
+.btn { font-size: 18px; }
+.btn-danger { font-size: 22px; min-height: 64px; }
+.input, select.input, textarea.input, .pickbtn { font-size: 18px; border: 2px solid var(--field-line); }
+.input::placeholder { color: var(--ink-2); opacity: 1; }
+.pill span { border: 2px solid var(--field-line); padding: 0 22px; font-weight: 600; }
+.check { min-height: var(--tap); gap: 16px; }
+.check input { width: 30px; height: 30px; }
+.row { min-height: 60px; }
+.card dt { font-size: 15px; }
+.group { font-size: 15px; }
+.thumb, .addphoto { width: 100px; height: 100px; }
+.addphoto { font-size: 15px; border: 2px dashed var(--field-line); }
+.thumb .x { width: 44px; height: 44px; top: 0; right: 0; }
+.thumb .x svg { width: 20px; height: 20px; }
+.thumb .state, .thumb .retry { font-size: 14px; }
+.iconbtn.back { gap: 4px; padding-inline: 8px 12px; font-weight: 600; font-size: 17px; }
+.toast { font-size: 17px; padding: 12px 18px; }
+dialog h2 { font-size: 26px; }
+/* On narrow phones the title would wrap beside "Back"; the screen heading already says where you are. */
+@media (max-width: 430px) { #backBtn:not([hidden]) + .title { visibility: hidden; } }
+
+/* ── Job-site look (2026-11-23, decisions.md) ────────────────────────────────────────────
+   Dark slate header and hero band with a hi-vis hazard stripe, a safety-yellow work-order
+   tag for the request number, and motion that makes moving between screens feel fluid.
+   Emergency red stays reserved for emergencies. All motion is off under reduced motion. */
+:root { --hero: #17212c; --on-hero: #ffffff; --hero-2: #c9d3de; --hiviz: #ffc629; --hiviz-ink: #17212c; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --hero: #0a0f15; } }
+:root[data-theme="dark"] { --hero: #0a0f15; }
+
+header.bar { background: var(--hero); color: var(--on-hero); border-bottom: 0; }
+header.bar .iconbtn, header.bar .langbtn { color: var(--on-hero); }
+header.bar .iconbtn:hover, header.bar .langbtn:hover { background: rgba(255, 255, 255, .12); }
+header.bar :focus-visible, .hero :focus-visible { outline-color: var(--hiviz); }
+/* Screens without a hero band (call, possible emergency, confirmation) get the stripe under the header. */
+body:not(.has-hero) header.bar { margin-bottom: 6px; }
+body:not(.has-hero) header.bar::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 6px; background: repeating-linear-gradient(-45deg, var(--hiviz) 0 10px, var(--hero) 10px 20px); }
+
+.hero { margin: -20px -16px 0; padding: 6px 16px 30px; background: var(--hero); color: var(--on-hero); display: flex; flex-direction: column; gap: 12px; position: relative; }
+.hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: repeating-linear-gradient(-45deg, var(--hiviz) 0 10px, var(--hero) 10px 20px); }
+.hero h1 { color: var(--on-hero); }
+.hero .step { color: var(--hero-2); margin: 0; }
+.hero .lede { color: var(--hero-2); margin: 0; }
+.hero .steps { margin: 4px 0 0; }
+.hero .steps span { background: rgba(255, 255, 255, .22); }
+.hero .steps span.on { background: var(--hiviz); }
+
+/* Selected answers show a check as well as the color, so they read without color too. */
+.pill input:checked + span::before { content: "✓"; margin-right: 8px; font-weight: 800; }
+.btn-primary { box-shadow: 0 3px 0 rgba(0, 0, 0, .28); }
+.btn-primary:active { box-shadow: none; }
+.card { box-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 2px 6px rgba(16, 24, 40, .06); }
+
+.ticket { background: var(--hiviz); color: var(--hiviz-ink); border-radius: 14px; padding: 16px 20px; outline: 2px dashed rgba(23, 33, 44, .45); outline-offset: -8px; box-shadow: 0 2px 8px rgba(16, 24, 40, .15); }
+.ticket-k { margin: 0; font-weight: 800; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; }
+.ticket .bignum { margin: 4px 0 0; color: var(--hiviz-ink); font-size: 52px; }
+
+@keyframes pei-in-fwd { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes pei-in-back { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@keyframes pei-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes pei-pop { 0% { opacity: 0; transform: scale(.6); } 70% { transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes pei-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  #app.anim-fwd > * { animation: pei-in-fwd .26s cubic-bezier(.2, .8, .2, 1) backwards; }
+  #app.anim-back > * { animation: pei-in-back .26s cubic-bezier(.2, .8, .2, 1) backwards; }
+  .steps span.now { transform-origin: left center; animation: pei-fill .5s .1s ease-out backwards; }
+  .pop { display: inline-block; animation: pei-pop .45s cubic-bezier(.2, 1.4, .4, 1) backwards; }
+  .ticket { animation: pei-rise .4s .12s ease-out backwards; }
+  .thumb { animation: pei-pop .3s ease-out backwards; }
+  .btn, .row, .pickbtn, .pill span { transition: transform .1s ease, background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .1s ease; }
+  .btn:active, .row:active, .pickbtn:active { transform: scale(.98); }
+  .btn-primary:active { transform: translateY(2px); }
+  .pill input:active + span { transform: scale(.95); }
+}
+/* The success check on the confirmation is the accent color, not emergency red (.emerg-head svg). */
+.emerg-head .accent svg { color: var(--accent); }
+/* Keep the real radio button above its label while the label shrinks on press (a transform
+   would otherwise lift the label over the input). */
+.pill input { z-index: 1; }
+/* The sticky bottom bar (Next, Send) always sits above the screen content. */
+.foot { z-index: 2; }

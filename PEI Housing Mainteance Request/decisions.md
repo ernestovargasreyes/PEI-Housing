@@ -232,3 +232,29 @@
 - Decided by: Matt
 - Why: Plateau also houses crews in Virginia and Indiana. The pilot itself runs in one state, at Montgomery, AL.
 - Rests on: Matt's written answers, 2026-11-23
+
+## 2026-11-23 · Sized for older field workers: 18px text, 56px tap targets, visible field borders
+- Decided by: Ernest (asked for it); Claude, default (the sizes)
+- Why: Many of the crew are older, read the phone in bright light, and tap with big or gloved fingers.
+  - Body text is 18px; hints and errors are 16 to 17px.
+  - Buttons, answer pills and list rows are 56px tall; checkboxes are 30px; the remove-photo button is 44px.
+  - Field and pill borders are 2px at 4.9:1 contrast, so boxes show in sunlight.
+  - A segment bar sits above "Step 2 of 4", and the back arrow says "Back".
+  - On narrow phones the header title hides while Back shows, rather than wrapping.
+  - The "Copied" message stays 5 seconds.
+- Replaces: "Answer pills and checkbox rows are 48 px tall on the worker form" (2026-11-20).
+- Considered: the iOS libraries in cjwirth/awesome-ios-ui. All 77 are Swift or Objective-C, so none can run in this web form. Their useful patterns (a slide-up picker, labels that stay visible, a sending indicator, a big confirmation) were already in the form.
+- Rejected: Turning "Type of problem" into a list of 14 buttons. The phone's own picker already shows large rows; revisit if the dry run shows people struggling with it.
+- Rests on: Ernest, 2026-11-23; accessibility-worker-form.md
+
+## 2026-11-23 · A job-site look: slate header, hazard stripe, a yellow work-order tag, and motion
+- Decided by: Ernest (asked for a more polished, fluid look for everyone in construction); Claude, default (the design)
+- What changed:
+  - A dark slate band holds the header, step bar and heading, edged with a hi-vis yellow and black hazard stripe. The step bar fills in yellow.
+  - The request number sits on a safety-yellow tag styled like a work order. Dark text on yellow is about 11:1, readable in sun.
+  - Screens slide in from the right going forward and from the left going back. The step segment fills, answer buttons press in, and the confirmation check pops.
+  - Selected answers also show a ✓, so they don't rely on color alone.
+- Kept: the 18px text, 56px tap targets and 4.9:1 field borders from the older-worker pass. Emergency red stays reserved for emergencies. Still no web fonts or images; the form is about 83 KB before photos.
+- Motion is off when the phone asks for reduced motion. Animations release when they finish, so they never sit over the Next or Send button.
+- Fixed on the way: the confirmation check had been drawn in emergency red since the first build. It is now the accent blue.
+- Rests on: Ernest, 2026-11-23

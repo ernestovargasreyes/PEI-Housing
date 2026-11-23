@@ -64,7 +64,7 @@ function say(msg, urgent) {
 }
 function toast(msg) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; t.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2600); say(msg);
+  document.body.appendChild(t); setTimeout(() => t.remove(), 5000); say(msg);   // long enough to read twice
 }
 
 /* ── time helpers ── */
@@ -100,9 +100,14 @@ function saveDraft() {
 }
 
 /* ── rendering ── */
-function head(title, scr) {
+/* The dark "hero" band at the top of each step screen and the first screen: step bar, step
+   count, heading. The call, possible-emergency and confirmation screens keep their own look. */
+function head(title, scr, sub) {
   const st = stepOf(scr);
-  return `${st ? `<p class="step" id="stepText">${esc(L().step(st[0], st[1]))}</p>` : ''}<h1 tabindex="-1" ${st ? 'aria-describedby="stepText"' : ''}>${esc(title)}</h1>`;
+  // A bar of segments as well as the words: easier to read at a glance than "Step 2 of 4".
+  const bar = st ? `<div class="steps" aria-hidden="true">${Array.from({ length: st[1] }, (_, i) => `<span class="${i < st[0] ? 'on' : ''}${i === st[0] - 1 ? ' now' : ''}"></span>`).join('')}</div>` : '';
+  const inner = `${bar}${st ? `<p class="step" id="stepText">${esc(L().step(st[0], st[1]))}</p>` : ''}<h1 tabindex="-1" ${st ? 'aria-describedby="stepText"' : ''}>${esc(title)}</h1>${sub ? `<p class="lede">${esc(sub)}</p>` : ''}`;
+  return st || scr === 'emergency' ? `<div class="hero">${inner}</div>` : inner;
 }
 function errLine(id, msg) { return msg ? `<p class="err" id="${id}-err">${ICON.alert}<span>${esc(msg)}</span></p>` : ''; }
 function radios(name, labels, val, legend, opts = {}) {
@@ -136,7 +141,7 @@ function callBlock() {
 
 const SCREENS = {
   emergency() {
-    return `<div class="body">${head(L().e1)}<p class="lede">${esc(L().e2)}</p>
+    return `<div class="body">${head(L().e1, 'emergency', L().e2)}
       <div class="list">${L().conds.map((c, i) => `<button class="row" data-act="emerg" data-i="${i}"><span class="grow">${esc(c)}</span>${ICON.chev}</button>`).join('')}</div></div>
       <div class="foot"><button class="btn btn-secondary" data-act="none">${esc(L().none)}</button></div>`;
   },
@@ -239,8 +244,8 @@ const SCREENS = {
   done() {
     const l = L(); const r = S.result;
     const missing = S.photos.filter((p) => p.status === 'failed' || p.status === 'uploading').length;
-    return `<div class="body"><div class="emerg-head tight">${big(ICON.check, 'accent')}${head(l.c1)}</div>
-      <div><p class="hint">${esc(l.c2)}</p><p class="bignum">${esc(r.num)}</p><p class="hint">${esc(l.c3)}</p></div>
+    return `<div class="body"><div class="emerg-head tight">${big(ICON.check, 'accent pop')}${head(l.c1)}</div>
+      <div class="ticket"><p class="ticket-k">${esc(l.c2)}</p><p class="bignum">${esc(r.num)}</p></div><p class="hint">${esc(l.c3)}</p>
       ${missing ? `<div class="note alert">${ICON.alert}<p>${esc(l.c10(missing))}<br><button class="btn btn-secondary mt" data-act="resendPhotos">${esc(l.c11)}</button></p></div>` : ''}
       <div class="card"><strong>${esc(l.c4)}</strong><p class="m0">${esc(l.c5(r.prop, reviewDay()))}</p><p class="m0">${esc(l.c6)}</p></div>
       <div class="note">${ICON.alert}<p><strong>${esc(l.c7)}</strong>${esc(l.c8(emergency() ? emergency().shown : ''))}</p></div></div>
@@ -261,7 +266,18 @@ function render(focusSel) {
   $('#backBtn').hidden = !S.history.length || S.screen === 'done';
   $('#signalBar').hidden = !(S.offline && !['emergency', 'call', 'done'].includes(S.screen));
   $('#signalBar').textContent = l.noSignal;
-  $('#app').innerHTML = SCREENS[S.screen]();
+  const app = $('#app');
+  app.innerHTML = SCREENS[S.screen]();
+  document.body.classList.toggle('has-hero', !!app.querySelector('.hero'));
+  // Slide the new screen in (from the right going forward, from the left going back).
+  // Only on a change of screen, not when the same screen redraws to show an error.
+  if (S.screen !== lastScreen) {
+    app.classList.remove('anim-fwd', 'anim-back');
+    void app.offsetWidth;
+    if (lastScreen !== null) app.classList.add(navDir === 'back' ? 'anim-back' : 'anim-fwd');
+    lastScreen = S.screen;
+  }
+  navDir = 'fwd';
   const h = $('#app h1');
   const st = stepOf(S.screen);
   document.title = (st ? l.step(st[0], st[1]) + ': ' : '') + (h ? h.textContent : '') + ' — ' + l.appTitle;
@@ -271,13 +287,14 @@ function render(focusSel) {
   if (f) f.focus({ preventScroll: !focusSel });
   if (!focusSel) window.scrollTo(0, 0);
 }
+let lastScreen = null, navDir = 'fwd';
 function go(scr, push = true) {
   if (push && S.screen !== scr) { S.history.push(S.screen); try { history.pushState({ pei: S.history.length }, ''); } catch {} }
   S.screen = scr; S.errors = {}; render(); saveDraft();
 }
 function goBack() {
   const prev = S.history.pop(); if (!prev) return;
-  S.screen = prev; S.errors = {}; render(); saveDraft();
+  navDir = 'back'; S.screen = prev; S.errors = {}; render(); saveDraft();
 }
 
 /* ── photos ── */
@@ -511,7 +528,7 @@ function act(a, el) {
   switch (a) {
     case 'emerg': S.tapped = +el.dataset.i; go('call'); break;
     case 'none': go('where'); break;
-    case 'notEmerg': { const i = S.tapped; S.history = []; S.screen = 'emergency'; render(`[data-act="emerg"][data-i="${i}"]`); break; }
+    case 'notEmerg': { const i = S.tapped; S.history = []; navDir = 'back'; S.screen = 'emergency'; render(`[data-act="emerg"][data-i="${i}"]`); break; }
     case 'pick': openSheet(); break;
     case 'closeSheet': closeSheet(); break;
     case 'choose':
@@ -520,7 +537,7 @@ function act(a, el) {
       if (S.screen === 'call' || S.screen === 'maybe') { render('#callLink'); break; }
       render('#f-code'); saveDraft(); break;
     case 'notListed': closeSheet(); S.d.code = ''; go('notlisted'); break;
-    case 'notlistedNext': if (validate('notlisted')) { S.history.pop(); S.screen = 'where'; S.errors = {}; render('#f-apt'); saveDraft(); } break;
+    case 'notlistedNext': if (validate('notlisted')) { S.history.pop(); navDir = 'back'; S.screen = 'where'; S.errors = {}; render('#f-apt'); saveDraft(); } break;
     case 'editProfile': S.editProfile = true; render('#f-apt'); break;
     case 'next': {
       const order = skipWho() ? { where: 'what', what: 'access' } : { where: 'who', who: 'what', what: 'access' };
