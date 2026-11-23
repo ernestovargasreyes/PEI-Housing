@@ -1,0 +1,13 @@
+{
+  "name": "pei-housing-form",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plateau Excavation housing maintenance request form: worker form, API, SharePoint setup",
+  "scripts": {
+    "dev": "node dev/server.js",
+    "test": "node --test test/*.test.js",
+    "test:e2e": "node --test test/e2e/*.test.js",
+    "check:launch": "node test/launch-check.js"
+  },
+  "engines": { "node": ">=20" }
+}

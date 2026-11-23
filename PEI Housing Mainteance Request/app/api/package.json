@@ -1,0 +1,11 @@
+{
+  "name": "pei-housing-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API for the Plateau housing maintenance request form (Azure Static Web Apps managed functions)",
+  "main": "src/index.js",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@azure/functions": "^4.5.0"
+  }
+}

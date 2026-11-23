@@ -1,0 +1,9 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/column-formatting.schema.json",
+  "elmType": "div",
+  "style": {
+    "font-weight": "=if([$Status] == 'Sent to Property' && Number([$SentOn]) > 0 && floor((Number(@now) - Number([$SentOn])) / 86400000) >= 5, '700', '400')",
+    "color": "=if([$Status] == 'Sent to Property' && Number([$SentOn]) > 0 && floor((Number(@now) - Number([$SentOn])) / 86400000) >= 5, '#8a5300', '')"
+  },
+  "txtContent": "=if(Number([$SentOn]) > 0 && [$Status] == 'Sent to Property', toString(floor((Number(@now) - Number([$SentOn])) / 86400000)) + if(floor((Number(@now) - Number([$SentOn])) / 86400000) == 1, ' day', ' days'), '')"
+}
