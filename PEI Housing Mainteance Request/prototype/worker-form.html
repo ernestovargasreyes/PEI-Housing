@@ -1,0 +1,1228 @@
+<title>Plateau Maintenance Request</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width column, a fixed top bar, the action button at the foot of each step. */
+:root {
+  --ground: #eef1f5;      /* page behind the form */
+  --paper: #ffffff;       /* form surface */
+  --ink: #17202c;         /* text */
+  --ink-2: #4b5768;       /* supporting text, 7:1 on paper */
+  --line: #c9d1dc;        /* borders */
+  --tint: #f3f5f8;        /* filled regions */
+  --accent: #1d4f91;      /* primary action, selection */
+  --on-accent: #ffffff;
+  --accent-soft: #e3ecf8;
+  --danger: #b3261e;      /* emergency and errors */
+  --danger-soft: #fbeceb;
+  --warn: #8a5300;        /* going quiet, possible duplicate */
+  --warn-soft: #fff3df;
+  --focus: #1d4f91;
+  --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --tap: 48px;
+  --r: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0e131a; --paper: #161d27; --ink: #e8edf4; --ink-2: #a9b4c3;
+    --line: #34404f; --tint: #1d2633; --accent: #7fb0f0; --on-accent: #0b1420;
+    --accent-soft: #1c2c44; --danger: #ff8a80; --danger-soft: #3a1d1c; --focus: #7fb0f0;
+    --warn: #f5b454; --warn-soft: #3a2c12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0e131a; --paper: #161d27; --ink: #e8edf4; --ink-2: #a9b4c3;
+  --line: #34404f; --tint: #1d2633; --accent: #7fb0f0; --on-accent: #0b1420;
+  --accent-soft: #1c2c44; --danger: #ff8a80; --danger-soft: #3a1d1c; --focus: #7fb0f0;
+  --warn: #f5b454; --warn-soft: #3a2c12;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { background: var(--ground); }
+body {
+  margin: 0; color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5;
+  padding-left: max(0px, env(safe-area-inset-left, 0px)); padding-right: max(0px, env(safe-area-inset-right, 0px));
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.shell { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--paper); display: flex; flex-direction: column; border-inline: 1px solid var(--line); }
+.demo-banner { background: var(--tint); color: var(--ink-2); font-size: 13px; padding-block: 6px; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); }
+header.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; align-items: center; gap: 4px; padding-inline: 8px; min-height: 56px; background: var(--paper); border-bottom: 1px solid var(--line); }
+header.bar .title { flex: 1; font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: 0.01em; padding-left: 8px; }
+.iconbtn, .langbtn { min-width: var(--tap); min-height: var(--tap); border: 0; background: none; border-radius: var(--r); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.iconbtn:hover, .langbtn:hover { background: var(--tint); }
+.langbtn { font-weight: 600; font-size: 15px; padding-inline: 12px; }
+.iconbtn svg { width: 24px; height: 24px; }
+.signal { background: var(--ink); color: var(--paper); font-size: 14px; padding: 8px 16px; }
+
+main { flex: 1; display: flex; flex-direction: column; }
+.body { padding: 20px 16px 24px; display: flex; flex-direction: column; gap: 20px; flex: 1; }
+.step { font-size: 14px; color: var(--ink-2); font-weight: 600; margin: 0 0 -14px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 28px; line-height: 1.15; margin: 0; text-wrap: balance; }
+h1:focus { outline: none; }
+.lede { margin: -8px 0 0; color: var(--ink-2); }
+.foot { position: sticky; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--paper); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+
+.btn { min-height: var(--tap); border-radius: var(--r); border: 1px solid transparent; padding: 10px 16px; font-weight: 700; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center; width: 100%; }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-primary[disabled] { opacity: 0.6; cursor: progress; }
+.btn-secondary { background: var(--paper); border-color: var(--line); color: var(--ink); }
+.btn-secondary:hover { background: var(--tint); }
+.btn-quiet { background: none; color: var(--ink); }
+.btn-quiet:hover { background: var(--tint); }
+.btn-danger { background: var(--danger); color: var(--paper); font-size: 20px; min-height: 60px; }
+.linkbtn { background: none; border: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; min-height: var(--tap); width: 100%; cursor: pointer; font-weight: 600; }
+
+.list { display: flex; flex-direction: column; border-top: 1px solid var(--line); margin-inline: -16px; }
+.row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 16px; border: 0; border-bottom: 1px solid var(--line); background: var(--paper); text-align: left; cursor: pointer; width: 100%; }
+.row:hover { background: var(--tint); }
+.row .grow { flex: 1; }
+.row svg { width: 20px; height: 20px; color: var(--ink-2); flex-shrink: 0; }
+.row small { display: block; color: var(--ink-2); font-size: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; border: 0; margin: 0; padding: 0; min-width: 0; }
+.label, legend { font-weight: 700; font-size: 16px; padding: 0; }
+.opt { font-weight: 400; color: var(--ink-2); }
+.hint { font-size: 14px; color: var(--ink-2); margin: 0; }
+.input, select.input, textarea.input { width: 100%; min-height: var(--tap); border: 1px solid var(--line); border-radius: var(--r); background: var(--paper); padding: 10px 12px; font-size: 16px; }
+textarea.input { min-height: 96px; resize: vertical; }
+.input:hover { border-color: var(--ink-2); }
+.input:focus { outline: 3px solid var(--focus); outline-offset: 0; border-color: var(--focus); }
+.input[aria-invalid="true"], .pickbtn[aria-invalid="true"] { border-color: var(--danger); border-width: 2px; }
+.err { color: var(--danger); font-weight: 600; font-size: 15px; margin: 0; display: flex; gap: 6px; align-items: flex-start; }
+.err svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 3px; }
+.pickbtn { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: var(--tap); border: 1px solid var(--line); border-radius: var(--r); background: var(--paper); padding: 10px 12px; text-align: left; cursor: pointer; font-size: 16px; }
+.pickbtn .ph { color: var(--ink-2); }
+.pickbtn svg { width: 20px; height: 20px; color: var(--ink-2); }
+
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { position: relative; }
+.pill input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.pill span { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); font-weight: 500; }
+.pill input:hover + span { background: var(--tint); }
+.pill input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+.pill input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+fieldset[aria-invalid="true"] .pill span { border-color: var(--danger); }
+.checks { display: flex; flex-direction: column; }
+.check { display: flex; align-items: center; gap: 14px; min-height: var(--tap); cursor: pointer; }
+.check input { width: 24px; height: 24px; accent-color: var(--accent); margin: 0; flex-shrink: 0; }
+
+.card { border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.card dt { font-size: 13px; color: var(--ink-2); }
+.card dd { margin: 0 0 4px; font-weight: 600; }
+.card dl { margin: 0; }
+.note { border-radius: var(--r); padding: 12px 14px; background: var(--tint); display: flex; gap: 10px; align-items: flex-start; }
+.note svg { width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px; }
+.note p { margin: 0; }
+.note strong { display: block; }
+.note.alert { background: var(--danger-soft); color: var(--ink); border: 1px solid var(--danger); }
+.note.alert svg { color: var(--danger); }
+.note.ok svg { color: var(--accent); }
+
+.emerg-head { display: flex; flex-direction: column; gap: 12px; }
+.emerg-head svg { width: 40px; height: 40px; color: var(--danger); }
+.bignum { font-family: var(--display); font-weight: 700; font-size: 44px; line-height: 1; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+
+.photos { display: flex; flex-wrap: wrap; gap: 10px; }
+.thumb { position: relative; width: 88px; height: 88px; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); background: var(--tint); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .state { position: absolute; inset: auto 0 0 0; background: rgba(0,0,0,.62); color: #fff; font-size: 12px; padding: 2px 6px; text-align: center; }
+.thumb .x { position: absolute; top: 2px; right: 2px; width: 32px; height: 32px; border-radius: 999px; border: 0; background: rgba(0,0,0,.62); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.thumb .x::after { content: ""; position: absolute; inset: -8px; }
+.thumb .x svg { width: 16px; height: 16px; }
+.thumb.failed { border: 2px solid var(--danger); }
+.thumb .retry { position: absolute; inset: 0; border: 0; background: rgba(0,0,0,.45); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
+.addphoto { width: 88px; height: 88px; border: 1px dashed var(--ink-2); border-radius: var(--r); background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.addphoto svg { width: 26px; height: 26px; }
+.addphoto[disabled] { opacity: .4; cursor: not-allowed; }
+
+.spinner { width: 18px; height: 18px; border-radius: 999px; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(1turn); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; border-right-color: currentColor; opacity: .6; } }
+
+dialog { border: 1px solid var(--line); border-radius: 14px; padding: 0; background: var(--paper); color: var(--ink); width: min(440px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(10,15,22,.55); }
+dialog .dbody { padding: 22px 20px 16px; display: flex; flex-direction: column; gap: 12px; }
+dialog h2 { font-family: var(--display); font-size: 24px; line-height: 1.2; margin: 0; }
+dialog h2:focus { outline: none; }
+dialog p { margin: 0; color: var(--ink-2); }
+dialog.sheet { width: 100%; max-width: 480px; height: min(88vh, 760px); margin: auto auto 0; border-radius: 16px 16px 0 0; }
+.sheet-in { display: flex; flex-direction: column; height: 100%; }
+.sheet-top { display: flex; align-items: center; gap: 8px; padding: 12px 8px 4px 16px; }
+.sheet-top h2 { flex: 1; font-size: 22px; }
+.sheet-search { padding: 8px 16px 12px; }
+.sheet-list { overflow: auto; flex: 1; border-top: 1px solid var(--line); }
+.group { font-size: 13px; font-weight: 700; color: var(--ink-2); letter-spacing: .06em; text-transform: uppercase; padding: 14px 16px 6px; margin: 0; }
+.sheet-list .list { margin: 0; border-top: 0; }
+
+.demo { margin-top: 16px; padding: 16px; border-top: 1px dashed var(--line); background: var(--ground); display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+.demo h2 { font-size: 14px; margin: 0; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.demo .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.demo .btn { width: auto; font-size: 14px; font-weight: 600; }
+.toggle { display: flex; align-items: center; gap: 12px; min-height: var(--tap); cursor: pointer; }
+.switch { width: 52px; height: 30px; border-radius: 999px; border: 0; background: var(--line); position: relative; cursor: pointer; flex-shrink: 0; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 999px; background: var(--paper); transition: left .15s; }
+.switch[aria-checked="true"] { background: var(--danger); }
+.switch[aria-checked="true"]::after { left: 25px; }
+@media (prefers-reduced-motion: reduce) { .switch::after { transition: none; } }
+/* ── demo switcher and coordinator queue ── */
+.topnav { background: var(--ink); color: var(--paper); }
+.topnav-in { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.topnav .brand { font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: .02em; }
+.seg { display: flex; background: color-mix(in srgb, var(--paper) 14%, transparent); border-radius: 999px; padding: 3px; }
+.seg button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: none; color: inherit; font-weight: 600; cursor: pointer; }
+.seg button[aria-selected="true"] { background: var(--paper); color: var(--ink); }
+.queue { max-width: 1120px; margin: 0 auto; background: var(--paper); min-height: 100vh; border-inline: 1px solid var(--line); }
+.q-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 20px 16px 12px; }
+.q-head h1 { font-size: 30px; }
+.q-head label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.q-head select { min-height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 0 8px; }
+.q-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 0 12px; border-bottom: 1px solid var(--line); }
+.q-tab { min-height: var(--tap); padding: 0 12px; border: 0; background: none; border-bottom: 3px solid transparent; font-weight: 600; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+.q-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.q-count { display: inline-block; min-width: 24px; padding: 0 7px; border-radius: 999px; background: var(--tint); font-size: 13px; margin-left: 6px; font-variant-numeric: tabular-nums; }
+.q-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .q-grid { grid-template-columns: 400px minmax(0, 1fr); } .q-list { border-right: 1px solid var(--line); } .q-back { display: none !important; } }
+@media (max-width: 899px) { .q-grid.has-sel .q-list { display: none; } .q-grid:not(.has-sel) .q-detail { display: none; } }
+.q-group { font-size: 13px; font-weight: 700; color: var(--ink-2); letter-spacing: .06em; text-transform: uppercase; padding: 14px 16px 6px; margin: 0; border-bottom: 1px solid var(--line); }
+.q-row { display: flex; flex-direction: column; gap: 4px; width: 100%; text-align: left; padding: 12px 16px; border: 0; border-bottom: 1px solid var(--line); background: var(--paper); cursor: pointer; }
+.q-row:hover { background: var(--tint); }
+.q-row[aria-current="true"] { background: var(--accent-soft); }
+.q-row .l1 { display: flex; gap: 8px; justify-content: space-between; font-weight: 700; }
+.q-row .l1 .age { font-weight: 500; color: var(--ink-2); font-size: 14px; white-space: nowrap; }
+.q-row .l2 { color: var(--ink-2); font-size: 14px; }
+.num { font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-s { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--tint); color: var(--ink-2); border: 1px solid var(--line); }
+.chip-s.danger { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); }
+.chip-s.warn { background: var(--warn-soft); color: var(--warn); border-color: var(--warn); }
+.chip-s.status { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.q-detail { padding: 16px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.q-detail h2 { font-family: var(--display); font-size: 28px; margin: 0; line-height: 1.1; }
+.q-detail h2:focus { outline: none; }
+.q-empty { color: var(--ink-2); padding: 24px 16px; margin: 0; }
+.sec { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 8px; font-weight: 700; }
+.facts { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 6px 16px; margin: 0; }
+.facts dt { color: var(--ink-2); font-size: 14px; padding-top: 1px; }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; } .facts dd { margin-bottom: 8px; } }
+.q-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.q-actions .btn { width: auto; }
+.panel { border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--tint); }
+.panel h3 { margin: 0; font-size: 17px; }
+.mail { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px; white-space: pre-wrap; font-size: 14px; overflow-wrap: anywhere; margin: 0; font-family: var(--body); }
+.log { font-size: 14px; color: var(--ink-2); margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 2px; }
+.q-back { align-self: flex-start; width: auto; }
+.toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: var(--r); font-size: 15px; z-index: 20; max-width: calc(100vw - 32px); }
+</style>
+
+<nav class="topnav" aria-label="Demo views">
+  <div class="topnav-in">
+    <span class="brand">Plateau housing · demo</span>
+    <div class="seg" role="tablist" aria-label="Show">
+      <button role="tab" id="tabForm" aria-selected="true" aria-controls="formView" data-view="form">Worker form</button>
+      <button role="tab" id="tabQueue" aria-selected="false" aria-controls="queueView" data-view="queue">Coordinator queue</button>
+    </div>
+  </div>
+</nav>
+<div class="queue" id="queueView" role="tabpanel" aria-labelledby="tabQueue" hidden></div>
+<div class="shell" id="formView" role="tabpanel" aria-labelledby="tabForm">
+  <div class="demo-banner" id="demoBanner"></div>
+  <header class="bar">
+    <button class="iconbtn" id="backBtn" hidden><span class="sr" id="backLabel">Back</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+    <span class="title" id="appTitle"></span>
+    <button class="langbtn" id="langBtn"></button>
+  </header>
+  <div class="signal" id="signalBar" role="status" hidden></div>
+  <main id="app"></main>
+  <section class="demo" aria-labelledby="demoH">
+    <h2 id="demoH"></h2>
+    <label class="toggle"><button class="switch" id="offlineSwitch" role="switch" aria-checked="false" aria-labelledby="offlineLabel"></button><span id="offlineLabel"></span></label>
+    <div class="btns">
+      <button class="btn btn-secondary" id="qrDemo"></button>
+      <button class="btn btn-secondary" id="resetDemo"></button>
+    </div>
+  </section>
+</div>
+<div class="sr" aria-live="polite" id="livePolite"></div>
+<div class="sr" aria-live="assertive" id="liveAssert"></div>
+<dialog id="dlg"></dialog>
+<dialog id="sheet" class="sheet" aria-labelledby="sheetTitle"></dialog>
+
+<script>
+/* Example apartment complexes and their maintenance contacts (made up for the demo). */
+window.PEI_PROPS = [
+  { code: 'magnolia-vld', name: 'Magnolia Pointe Apartments', city: 'Valdosta', st: 'GA', contact: 'Leasing office', method: 'Email', to: 'maintenance@magnoliapointe.example', typical: 'Same day', notes: 'Replies come from Brenda in the leasing office.' },
+  { code: 'oak-tlh', name: 'Oak Hollow Apartments', city: 'Tallahassee', st: 'FL', contact: 'Dana Wells, property manager', method: 'Email', to: 'dana.wells@oakhollow.example', typical: '1–2 days', notes: '' },
+  { code: 'riverbend-pc', name: 'Riverbend Apartments', city: 'Panama City', st: 'FL', contact: 'Resident portal', method: 'Online portal', to: 'riverbend.example/portal', typical: 'Have to chase', notes: 'Portal takes one photo. Requests only from the Plateau leaseholder login.' },
+  { code: 'cedar-dot', name: 'Cedar Ridge Apartments', city: 'Dothan', st: 'AL', contact: 'Marcus, leasing office', method: 'Phone', to: '(334) 555-0142', typical: '1–2 days', notes: 'Ask for Marcus. Give the Plateau account name.' },
+  { code: 'landing-cha', name: 'The Landing at Hixson', city: 'Chattanooga', st: 'TN', contact: 'Maintenance desk', method: 'Email', to: 'service@landinghixson.example', typical: '1–2 days', notes: '' },
+];
+</script>
+<script>
+(() => {
+'use strict';
+const NUM = '(XXX) XXX-XXXX';               // emergency line: not yet assigned
+const HOUSING = '(XXX) XXX-XXXX';           // housing office line: not yet assigned
+const PROPS = window.PEI_PROPS;
+const STATES = { GA: 'Georgia', FL: 'Florida', AL: 'Alabama', TN: 'Tennessee' };
+
+const T = {
+  en: {
+    banner: 'Demo · Nothing is sent and no call is placed. Apartments and request numbers are examples.',
+    appTitle: 'Maintenance request', lang: 'Español', langOther: 'es', langAnnounce: 'Form in English',
+    back: 'Back', next: 'Next', step: (n, t) => `Step ${n} of ${t}`,
+    noSignal: 'No signal. Your answers are saved.',
+    notSentNoSignal: 'Not sent yet — no signal. Your answers are saved on this phone.',
+    sendingNow: 'Sending now…',
+    stillFailing: `Still not sending. Copy your request and text it to ${HOUSING}.`,
+    copyMine: 'Copy my request', copied: 'Copied. Paste it into a text.', tryAgain: 'Try again',
+    resumeT: 'Pick up where you left off?',
+    resumeB: (time, cat, apt, prop) => `You started a request at ${time}${cat ? ': ' + cat : ''}${apt ? ', apartment ' + apt : ''}${prop ? ', ' + prop : ''}.`,
+    cont: 'Continue', startOver: 'Start over',
+    unsentT: (time) => `Your request from ${time} wasn't sent`,
+    sendNow: 'Send now', deleteIt: 'Delete it',
+    e1: 'First — is this an emergency?', e2: 'Tap anything that\'s happening right now.',
+    conds: ['No heat or AC at all', 'No water', 'Water leaking or flooding right now', 'I smell gas', 'Smoke or fire', 'No electricity', 'I\'m locked out', 'Someone broke in, or a door or window won\'t lock'],
+    none: 'None of these — report a problem',
+    k1: 'Call us now — don\'t use this form', k2: 'You tapped:', k3: `Call ${NUM}`,
+    k4: 'Someone answers 24 hours a day. This form is only checked during the day, so an emergency sent here could wait all night.',
+    k5: 'If you smell gas, leave the apartment first, then call.', k6: 'Not an emergency — go back',
+    demoCall: 'In the live form, this button calls the emergency line.',
+    w1: 'Where are you staying?', w2: 'Apartments', w3: 'Choose where you\'re staying',
+    w4: 'Apartment number', w5: 'For example 214 or B12', change: 'Change',
+    w7: 'This sign\'s place isn\'t on our list. Choose where you\'re staying.',
+    w8: 'Name of your apartments', w8c: 'City', opt: '(optional)', w9: 'Tonya or Jordan will find it on our list.',
+    w10: 'Choose where you\'re staying.', w11: 'Enter your apartment number.',
+    w12: 'Is this still you?', wWhere: 'Where', wName: 'Name', wCell: 'Cell',
+    w14: 'Saved on this phone from your last request.',
+    w15: (n) => `Last request: ${n}`, w15b: (cat, d) => `${cat} · sent ${d}`,
+    w16: 'Yes, that\'s me — next', aptPrefix: 'Apartment',
+    p2: 'Search by name or city', p4: 'My place isn\'t listed', p5: (q) => `No places match "${q}".`, close: 'Close',
+    h1: 'Who should they contact?', h2: 'Your name', h3: 'Your cell number',
+    h4: 'So we can reach you, and so maintenance can call before they come in.',
+    h5: 'What job site are you on?', h6: 'Enter your name.', h7: 'Enter your cell number.',
+    h8: (n) => `That's ${n} digits. A cell number has 10.`,
+    q1: 'What\'s wrong?', q2: 'Type of problem', q3: 'Pick the closest one',
+    cats: ['Water leak, drip, or flooding', 'Toilet, sink, shower, or drain', 'No hot water', 'Heating or air conditioning', 'Lights, outlets, or power', 'Fridge, stove, washer, or dryer', 'Door, lock, key, or garage', 'Bugs, mice, or other pests', 'Internet, cable, or TV', 'Damage to walls, floors, or ceiling', 'Cleaning or trash', 'Yard, grounds, or snow', 'Furniture or household items', 'Something else'],
+    q5: 'Where in your apartment?', wheres: ['Kitchen', 'Bathroom', 'Bedroom', 'Living area', 'Laundry', 'Outside', 'The whole place'],
+    q7: 'Tell us what\'s happening', q8: 'For example: AC blows warm air, started Tuesday.', q9: 'A sentence is fine.',
+    q10: 'How long has this been going on?', longs: ['Started today', 'A few days', 'More than a week'],
+    q12: 'Is it getting worse?', worses: ['Yes', 'No', 'Not sure'],
+    q14: 'Photos', q14b: '— they help a lot (up to 5)', q15: 'Add photo', q16: 'Remove photo',
+    q17: (n) => n === 1 ? 'Uploading 1 photo. You can keep going.' : `Uploading ${n} photos. You can keep going.`,
+    q18: (n) => n === 1 ? '1 photo didn\'t upload. Tap it to try again.' : `${n} photos didn't upload. Tap each one to try again.`,
+    q19: 'You can add up to 5 photos.', q20: 'Tell us in a few words what\'s wrong.',
+    q21: (u) => `${u.toLocaleString('en-US')} of 2,000`, q22: 'Pick the type of problem.', q23: 'Pick one.',
+    q24: (n) => `Photo ${n} uploaded`, photoAlt: (n) => `Photo ${n}`, retry: 'Try again', uploading: 'Uploading', failed: 'Not uploaded',
+    x1: 'This might be an emergency', x2: (w) => `You wrote "${w}". If that's happening now, call instead of sending this.`,
+    x3: 'Someone answers 24 hours a day.', x4: 'It\'s not an emergency — continue',
+    a1: 'Getting in', a2: 'Can maintenance come in if you\'re not there?', yesno: ['Yes', 'No'],
+    a4: 'When are you usually there?', a4b: 'Check all that work',
+    times: ['Weekday mornings', 'Weekday afternoons', 'Evenings', 'Weekends', 'Anytime is fine'],
+    a6: 'Any pets in the apartment?', pets: ['None', 'Dog', 'Cat', 'Other'], a8: 'What kind?',
+    a9: 'Anything else they should know?', a10: 'Gate code, where the water shutoff is, best door to use',
+    a11: 'Pick yes or no.', a12: 'Pick at least one time you\'re usually there.',
+    s1: 'Send request', s2: (n) => n === 1 ? 'Sending 1 photo…' : `Sending ${n} photos…`, s3: 'Still sending — keep this page open', sending: 'Sending…',
+    c1: 'Got it. Your request is in.', c2: 'Your request number', c3: 'Take a screenshot to keep it.',
+    c4: 'What happens next', c5: (p, d) => `Tonya or Jordan sends this to ${p} on ${d}.`,
+    c6: 'You\'ll get a text when it\'s sent, and again when they give a date.',
+    c7: 'If it turns into an emergency', c8: `Call ${NUM}. Someone answers 24 hours a day.`,
+    c9: 'Report another problem',
+    c10: (n) => n === 1 ? 'Your request is in, but 1 photo didn\'t arrive.' : `Your request is in, but ${n} photos didn't arrive.`,
+    c11: 'Send photos again', photosSent: 'Photos sent.',
+    demoH: 'Demo controls', offline: 'Pretend this phone has no signal', qr: 'Open as if scanned at Riverbend Apartments', reset: 'Clear everything saved on this phone',
+    copyHead: 'Maintenance request', started: 'Started', worse: 'Getting worse', enter: 'OK to enter', there: 'Usually there', petsL: 'Pets',
+  },
+  es: {
+    banner: 'Demostración · No se envía nada y no se hace ninguna llamada. Los apartamentos y números de solicitud son ejemplos.',
+    appTitle: 'Solicitud de mantenimiento', lang: 'English', langOther: 'en', langAnnounce: 'Formulario en español',
+    back: 'Atrás', next: 'Siguiente', step: (n, t) => `Paso ${n} de ${t}`,
+    noSignal: 'Sin señal. Sus respuestas están guardadas.',
+    notSentNoSignal: 'Todavía no se envió — no hay señal. Sus respuestas están guardadas en este teléfono.',
+    sendingNow: 'Enviando…',
+    stillFailing: `Sigue sin enviarse. Copie su solicitud y mándela por mensaje de texto al ${HOUSING}.`,
+    copyMine: 'Copiar mi solicitud', copied: 'Copiado. Péguelo en un mensaje de texto.', tryAgain: 'Intentar de nuevo',
+    resumeT: '¿Quiere seguir donde se quedó?',
+    resumeB: (time, cat, apt, prop) => `Empezó una solicitud a las ${time}${cat ? ': ' + cat : ''}${apt ? ', apartamento ' + apt : ''}${prop ? ', ' + prop : ''}.`,
+    cont: 'Continuar', startOver: 'Empezar de nuevo',
+    unsentT: (time) => `Su solicitud de las ${time} no se envió`,
+    sendNow: 'Enviar ahora', deleteIt: 'Borrarla',
+    e1: 'Primero: ¿es una emergencia?', e2: 'Toque lo que esté pasando ahora mismo.',
+    conds: ['La calefacción o el aire acondicionado no funcionan para nada', 'No hay agua', 'Hay una fuga de agua o una inundación ahora mismo', 'Huele a gas', 'Hay humo o fuego', 'No hay electricidad', 'Me quedé afuera y no puedo entrar', 'Alguien entró a la fuerza, o una puerta o ventana no cierra con llave'],
+    none: 'Nada de esto — reportar un problema',
+    k1: 'Llámenos ahora — no use este formulario', k2: 'Usted tocó:', k3: `Llamar al ${NUM}`,
+    k4: 'Alguien contesta las 24 horas. Este formulario solo se revisa de día, así que una emergencia enviada aquí podría esperar toda la noche.',
+    k5: 'Si huele a gas, primero salga del apartamento y luego llame.', k6: 'No es una emergencia — regresar',
+    demoCall: 'En el formulario real, este botón llama a la línea de emergencia.',
+    w1: '¿Dónde se está quedando?', w2: 'Apartamentos', w3: 'Elija dónde se queda',
+    w4: 'Número de apartamento', w5: 'Por ejemplo 214 o B12', change: 'Cambiar',
+    w7: 'El lugar de este letrero no está en nuestra lista. Elija dónde se queda.',
+    w8: 'Nombre de sus apartamentos', w8c: 'Ciudad', opt: '(opcional)', w9: 'Tonya o Jordan lo buscarán en nuestra lista.',
+    w10: 'Elija dónde se queda.', w11: 'Escriba el número de su apartamento.',
+    w12: '¿Sigue siendo usted?', wWhere: 'Dónde', wName: 'Nombre', wCell: 'Celular',
+    w14: 'Guardado en este teléfono de su última solicitud.',
+    w15: (n) => `Última solicitud: ${n}`, w15b: (cat, d) => `${cat} · enviada el ${d}`,
+    w16: 'Sí, soy yo — siguiente', aptPrefix: 'Apartamento',
+    p2: 'Buscar por nombre o ciudad', p4: 'Mi lugar no está en la lista', p5: (q) => `Ningún lugar coincide con "${q}".`, close: 'Cerrar',
+    h1: '¿A quién deben contactar?', h2: 'Su nombre', h3: 'Su número de celular',
+    h4: 'Para comunicarnos con usted y para que mantenimiento le llame antes de entrar.',
+    h5: '¿En qué obra está trabajando?', h6: 'Escriba su nombre.', h7: 'Escriba su número de celular.',
+    h8: (n) => `Son ${n} dígitos. Un número de celular tiene 10.`,
+    q1: '¿Cuál es el problema?', q2: 'Tipo de problema', q3: 'Elija el más parecido',
+    cats: ['Fuga de agua, goteo o inundación', 'Inodoro, lavabo, ducha o desagüe', 'No hay agua caliente', 'Calefacción o aire acondicionado', 'Luces, enchufes o electricidad', 'Refrigerador, estufa, lavadora o secadora', 'Puerta, cerradura, llave o garaje', 'Insectos, ratones u otras plagas', 'Internet, cable o TV', 'Daños en paredes, pisos o techo', 'Limpieza o basura', 'Jardín, áreas exteriores o nieve', 'Muebles o artículos de la casa', 'Otra cosa'],
+    q5: '¿En qué parte de su apartamento?', wheres: ['Cocina', 'Baño', 'Dormitorio', 'Sala', 'Lavandería', 'Afuera', 'Todo el lugar'],
+    q7: 'Cuéntenos qué está pasando', q8: 'Por ejemplo: el aire sale caliente, empezó el martes.', q9: 'Con una oración basta.',
+    q10: '¿Desde cuándo está pasando?', longs: ['Empezó hoy', 'Hace unos días', 'Hace más de una semana'],
+    q12: '¿Está empeorando?', worses: ['Sí', 'No', 'No sé'],
+    q14: 'Fotos', q14b: '— ayudan mucho (hasta 5)', q15: 'Agregar foto', q16: 'Quitar foto',
+    q17: (n) => n === 1 ? 'Subiendo 1 foto. Puede seguir.' : `Subiendo ${n} fotos. Puede seguir.`,
+    q18: (n) => n === 1 ? '1 foto no se subió. Tóquela para intentar de nuevo.' : `${n} fotos no se subieron. Toque cada una para intentar de nuevo.`,
+    q19: 'Puede agregar hasta 5 fotos.', q20: 'Díganos en pocas palabras qué pasa.',
+    q21: (u) => `${u.toLocaleString('en-US')} de 2,000`, q22: 'Elija el tipo de problema.', q23: 'Elija una opción.',
+    q24: (n) => `Foto ${n} subida`, photoAlt: (n) => `Foto ${n}`, retry: 'Intentar de nuevo', uploading: 'Subiendo', failed: 'No se subió',
+    x1: 'Esto podría ser una emergencia', x2: (w) => `Usted escribió "${w}". Si eso está pasando ahora, llame en vez de enviar esto.`,
+    x3: 'Alguien contesta las 24 horas.', x4: 'No es una emergencia — continuar',
+    a1: 'Acceso', a2: '¿Puede entrar mantenimiento si usted no está?', yesno: ['Sí', 'No'],
+    a4: '¿Cuándo suele estar?', a4b: 'Marque todos los que le sirvan',
+    times: ['Mañanas entre semana', 'Tardes entre semana', 'Noches', 'Fines de semana', 'A cualquier hora'],
+    a6: '¿Hay mascotas en el apartamento?', pets: ['Ninguna', 'Perro', 'Gato', 'Otra'], a8: '¿Cuál?',
+    a9: '¿Algo más que deban saber?', a10: 'Código del portón, dónde está la llave de paso del agua, qué puerta usar',
+    a11: 'Elija sí o no.', a12: 'Elija por lo menos un horario en que suele estar.',
+    s1: 'Enviar solicitud', s2: (n) => n === 1 ? 'Enviando 1 foto…' : `Enviando ${n} fotos…`, s3: 'Todavía enviando — no cierre esta página', sending: 'Enviando…',
+    c1: 'Listo. Recibimos su solicitud.', c2: 'Su número de solicitud', c3: 'Tome una captura de pantalla para guardarlo.',
+    c4: 'Qué sigue', c5: (p, d) => `Tonya o Jordan se la enviará a ${p} el ${d}.`,
+    c6: 'Le mandaremos un mensaje de texto cuando se envíe y otra vez cuando den una fecha.',
+    c7: 'Si se convierte en una emergencia', c8: `Llame al ${NUM}. Alguien contesta las 24 horas.`,
+    c9: 'Reportar otro problema',
+    c10: (n) => n === 1 ? 'Recibimos su solicitud, pero 1 foto no llegó.' : `Recibimos su solicitud, pero ${n} fotos no llegaron.`,
+    c11: 'Enviar las fotos de nuevo', photosSent: 'Fotos enviadas.',
+    demoH: 'Controles de la demostración', offline: 'Simular que el teléfono no tiene señal', qr: 'Abrir como si se escaneara en Riverbend Apartments', reset: 'Borrar todo lo guardado en este teléfono',
+    copyHead: 'Solicitud de mantenimiento', started: 'Empezó', worse: 'Empeorando', enter: 'Pueden entrar', there: 'Suele estar', petsL: 'Mascotas',
+  },
+};
+const EMERGENCY_WORDS = ['gas leak', 'smell gas', 'gas', 'smoke', 'fire', 'flood', 'flooding', 'sparks', 'sparking', 'no water', 'burning', 'huele a gas', 'humo', 'fuego', 'inundación', 'inundacion', 'inundado', 'chispas', 'sin agua', 'quemando'];
+
+/* ── storage (wrapped: may be unavailable) ── */
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem('pei.' + k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem('pei.' + k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem('pei.' + k); } catch {} },
+};
+const HOUR = 3600e3, DAY = 24 * HOUR;
+
+const blank = () => ({ code: '', freeName: '', freeCity: '', apt: '', name: '', cell: '', site: '', cat: '', where: '', desc: '', long: '', worse: '', entry: '', times: [], pets: '', petOther: '', notes: '' });
+let S = {
+  lang: (navigator.language || 'en').toLowerCase().startsWith('es') ? 'es' : 'en',
+  screen: 'emergency', d: blank(), photos: [], fromQR: false, qrUnknown: false, notListed: false,
+  returning: false, editProfile: false, errors: {}, tapped: -1, matched: '', maybeDone: false,
+  attempts: 0, sending: false, sendNote: '', result: null, offline: false, history: [],
+};
+const L = () => T[S.lang];
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const prop = (code) => PROPS.find((p) => p.code === code);
+const propName = () => S.d.code ? prop(S.d.code)?.name : (S.d.freeName || '');
+const ICON = {
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v4" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="4"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>',
+};
+
+/* ── announcements ── */
+function say(msg, urgent) {
+  const el = urgent ? $('#liveAssert') : $('#livePolite');
+  el.textContent = ''; setTimeout(() => { el.textContent = msg; }, 40);
+}
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; t.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600); say(msg);
+}
+
+/* ── time helpers ── */
+const fmtTime = (ts) => new Date(ts).toLocaleTimeString(S.lang === 'es' ? 'es-US' : 'en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+const fmtDate = (ts) => new Date(ts).toLocaleDateString(S.lang === 'es' ? 'es-US' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+function reviewDay() {
+  const d = new Date(); do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6);
+  return d.toLocaleDateString(S.lang === 'es' ? 'es-US' : 'en-US', { weekday: 'long' });
+}
+
+/* ── steps ── */
+const skipWho = () => S.returning && !S.editProfile;
+function stepOf(scr) {
+  const seq = skipWho() ? ['where', 'what', 'access'] : ['where', 'who', 'what', 'access'];
+  const i = seq.indexOf(scr === 'notlisted' ? 'where' : scr);
+  return i < 0 ? null : [i + 1, seq.length];
+}
+
+/* ── persistence ── */
+function saveDraft() {
+  if (['emergency', 'call', 'done'].includes(S.screen)) return;
+  store.set('draft', { d: S.d, screen: S.screen === 'maybe' ? 'what' : S.screen, at: Date.now(), returning: S.returning, editProfile: S.editProfile, photosPending: S.photos.filter((p) => p.status !== 'done').length });
+}
+
+/* ── rendering ── */
+function head(title, scr) {
+  const st = stepOf(scr);
+  return `${st ? `<p class="step" id="stepText">${esc(L().step(st[0], st[1]))}</p>` : ''}<h1 tabindex="-1" ${st ? 'aria-describedby="stepText"' : ''}>${esc(title)}</h1>`;
+}
+function errLine(id, msg) { return msg ? `<p class="err" id="${id}-err">${ICON.alert}<span>${esc(msg)}</span></p>` : ''; }
+function radios(name, labels, val, legend, opts = {}) {
+  const e = S.errors[name];
+  return `<fieldset class="field" ${e ? 'aria-invalid="true"' : ''} ${e ? `aria-describedby="${name}-err"` : ''}>
+    <legend>${esc(legend)}</legend>
+    <div class="pills" role="radiogroup">${labels.map((lab, i) => `
+      <label class="pill"><input type="radio" name="${name}" value="${i}" ${String(val) === String(i) ? 'checked' : ''} data-k="${name}" ${i === 0 ? `id="f-${name}"` : ''}><span>${esc(lab)}</span></label>`).join('')}
+    </div>${errLine(name, e)}${opts.after || ''}</fieldset>`;
+}
+function input(k, label, attrs = '', hint = '', optional = false) {
+  const e = S.errors[k];
+  const desc = [hint ? `${k}-hint` : '', e ? `${k}-err` : ''].filter(Boolean).join(' ');
+  return `<div class="field"><label class="label" for="f-${k}">${esc(label)}${optional ? ` <span class="opt">${esc(L().opt)}</span>` : ''}</label>
+    <input class="input" id="f-${k}" data-k="${k}" value="${esc(S.d[k])}" ${attrs} ${e ? 'aria-invalid="true"' : ''} ${desc ? `aria-describedby="${desc}"` : ''}>
+    ${errLine(k, e)}${hint ? `<p class="hint" id="${k}-hint">${esc(hint)}</p>` : ''}</div>`;
+}
+
+const SCREENS = {
+  emergency() {
+    return `<div class="body">${head(L().e1)}<p class="lede">${esc(L().e2)}</p>
+      <div class="list">${L().conds.map((c, i) => `<button class="row" data-act="emerg" data-i="${i}"><span class="grow">${esc(c)}</span>${ICON.chev}</button>`).join('')}</div></div>
+      <div class="foot"><button class="btn btn-secondary" data-act="none">${esc(L().none)}</button></div>`;
+  },
+  call() {
+    return `<div class="body"><div class="emerg-head">${ICON.alert}${head(L().k1)}</div>
+      <p>${esc(L().k2)} <strong>${esc(L().conds[S.tapped])}</strong></p>
+      <button class="btn btn-danger" data-act="call">${esc(L().k3)}</button>
+      <p>${esc(L().k4)}</p>${S.tapped === 3 ? `<p><strong>${esc(L().k5)}</strong></p>` : ''}</div>
+      <div class="foot" style="border-top:0"><button class="linkbtn" data-act="notEmerg">${esc(L().k6)}</button></div>`;
+  },
+  where() {
+    const l = L();
+    if (S.returning && !S.editProfile) {
+      const last = store.get('last');
+      return `<div class="body">${head(l.w12, 'where')}
+        <div class="card"><dl><dt>${esc(l.wWhere)}</dt><dd>${esc(l.aptPrefix)} ${esc(S.d.apt)}, ${esc(propName())}</dd>
+          <dt>${esc(l.wName)}</dt><dd>${esc(S.d.name)}</dd><dt>${esc(l.wCell)}</dt><dd>${esc(S.d.cell)}</dd></dl>
+          <button class="btn btn-secondary" data-act="editProfile">${esc(l.change)}</button></div>
+        <p class="hint">${esc(l.w14)}</p>
+        ${last ? `<div class="note ok">${ICON.check}<p><strong>${esc(l.w15(last.num))}</strong>${esc(l.w15b(l.cats[last.cat], fmtDate(last.at)))}</p></div>` : ''}</div>
+        <div class="foot"><button class="btn btn-primary" data-act="next">${esc(l.w16)}</button></div>`;
+    }
+    const p = prop(S.d.code); const e = S.errors.code;
+    let propField;
+    if (S.fromQR && p) {
+      propField = `<div class="card" style="flex-direction:row;align-items:center"><div style="flex:1"><strong>${esc(p.name)}</strong><br><span class="hint">${esc(p.city)}, ${esc(STATES[p.st])}</span></div><button class="btn btn-quiet" style="width:auto" data-act="pick">${esc(l.change)}</button></div>`;
+    } else {
+      propField = `<div class="field"><span class="label" id="propLabel">${esc(l.w2)}</span>
+        ${S.qrUnknown ? `<div class="note alert">${ICON.alert}<p>${esc(l.w7)}</p></div>` : ''}
+        <button class="pickbtn" id="f-code" data-act="pick" aria-haspopup="dialog" aria-labelledby="propLabel propValue" ${e ? 'aria-invalid="true" aria-describedby="code-err"' : ''}>
+          <span id="propValue" class="${p || S.d.freeName ? '' : 'ph'}">${esc(p ? p.name : (S.d.freeName || l.w3))}</span>${ICON.down}</button>${errLine('code', e)}</div>`;
+    }
+    return `<div class="body">${head(l.w1, 'where')}${propField}
+      ${input('apt', l.w4, `placeholder="${esc(l.w5)}" autocomplete="off" maxlength="30"`)}</div>
+      <div class="foot"><button class="btn btn-primary" data-act="next">${esc(l.next)}</button></div>`;
+  },
+  notlisted() {
+    const l = L();
+    return `<div class="body">${head(l.w1, 'where')}
+      ${input('freeName', l.w8, 'maxlength="80"', l.w9)}${input('freeCity', l.w8c, 'maxlength="60"', '', true)}</div>
+      <div class="foot"><button class="btn btn-primary" data-act="notlistedNext">${esc(l.next)}</button></div>`;
+  },
+  who() {
+    const l = L();
+    return `<div class="body">${head(l.h1, 'who')}
+      ${input('name', l.h2, 'autocomplete="name" maxlength="80"')}
+      ${input('cell', l.h3, 'type="tel" inputmode="tel" autocomplete="tel-national"', l.h4)}
+      ${input('site', l.h5, 'maxlength="80"', '', true)}</div>
+      <div class="foot"><button class="btn btn-primary" data-act="next">${esc(l.next)}</button></div>`;
+  },
+  what() {
+    const l = L(); const ec = S.errors.cat; const ed = S.errors.desc;
+    const n = S.d.desc.length;
+    return `<div class="body">${head(l.q1, 'what')}
+      <div class="field"><label class="label" for="f-cat">${esc(l.q2)}</label>
+        <select class="input" id="f-cat" data-k="cat" ${ec ? 'aria-invalid="true" aria-describedby="cat-err"' : ''}>
+          <option value="" ${S.d.cat === '' ? 'selected' : ''} disabled>${esc(l.q3)}</option>
+          ${l.cats.map((c, i) => `<option value="${i}" ${String(S.d.cat) === String(i) ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+        </select>${errLine('cat', ec)}</div>
+      ${radios('where', l.wheres, S.d.where, l.q5)}
+      <div class="field"><label class="label" for="f-desc">${esc(l.q7)}</label>
+        <textarea class="input" id="f-desc" data-k="desc" maxlength="2000" placeholder="${esc(l.q8)}" aria-describedby="desc-hint${ed ? ' desc-err' : ''}" ${ed ? 'aria-invalid="true"' : ''}>${esc(S.d.desc)}</textarea>
+        ${errLine('desc', ed)}<p class="hint" id="desc-hint">${n >= 1800 ? esc(l.q21(n)) : esc(l.q9)}</p></div>
+      ${radios('long', l.longs, S.d.long, l.q10)}
+      ${radios('worse', l.worses, S.d.worse, l.q12)}
+      <div class="field"><span class="label">${esc(l.q14)} <span class="opt">${esc(l.q14b)}</span></span>
+        <div class="photos" id="photos"></div><p class="hint" id="photoHint"></p>
+        <input type="file" id="fileIn" accept="image/*" multiple hidden></div></div>
+      <div class="foot"><button class="btn btn-primary" data-act="next">${esc(l.next)}</button></div>`;
+  },
+  maybe() {
+    const l = L();
+    return `<div class="body"><div class="emerg-head">${ICON.alert}${head(l.x1)}</div>
+      <p>${esc(l.x2(S.matched))}</p>
+      <button class="btn btn-danger" data-act="call">${esc(l.k3)}</button><p>${esc(l.x3)}</p></div>
+      <div class="foot"><button class="btn btn-secondary" data-act="maybeContinue">${esc(l.x4)}</button></div>`;
+  },
+  access() {
+    const l = L(); const et = S.errors.times;
+    const timesReq = String(S.d.entry) === '1';
+    const petOther = String(S.d.pets) === '3' ? input('petOther', l.a8, 'maxlength="40"') : '';
+    return `<div class="body">${head(l.a1, 'access')}
+      ${radios('entry', l.yesno, S.d.entry, l.a2)}
+      <fieldset class="field" ${et ? 'aria-invalid="true" aria-describedby="times-err"' : ''}><legend>${esc(l.a4)} <span class="opt">${esc(timesReq ? l.a4b : l.a4b + ' ' + l.opt)}</span></legend>
+        <div class="checks">${l.times.map((t, i) => `<label class="check"><input type="checkbox" data-k="times" value="${i}" ${S.d.times.includes(i) ? 'checked' : ''} ${i === 0 ? 'id="f-times"' : ''}>${esc(t)}</label>`).join('')}</div>
+        ${errLine('times', et)}</fieldset>
+      ${radios('pets', l.pets, S.d.pets, l.a6, { after: petOther })}
+      <div class="field"><label class="label" for="f-notes">${esc(l.a9)} <span class="opt">${esc(l.opt)}</span></label>
+        <textarea class="input" id="f-notes" data-k="notes" maxlength="1000" placeholder="${esc(l.a10)}">${esc(S.d.notes)}</textarea></div>
+      <div id="sendNote"></div></div>
+      <div class="foot" id="sendFoot"></div>`;
+  },
+  done() {
+    const l = L(); const r = S.result;
+    const missing = S.photos.filter((p) => p.status === 'failed').length;
+    return `<div class="body"><div class="emerg-head" style="gap:8px"><span style="color:var(--accent)">${ICON.check.replace('aria-hidden', 'width="40" height="40" aria-hidden')}</span>${head(l.c1)}</div>
+      <div><p class="hint">${esc(l.c2)}</p><p class="bignum" style="margin:4px 0">${esc(r.num)}</p><p class="hint">${esc(l.c3)}</p></div>
+      ${missing ? `<div class="note alert">${ICON.alert}<p>${esc(l.c10(missing))}<br><button class="btn btn-secondary" style="margin-top:8px" data-act="resendPhotos">${esc(l.c11)}</button></p></div>` : ''}
+      <div class="card"><strong>${esc(l.c4)}</strong><p style="margin:0">${esc(l.c5(r.prop, reviewDay()))}</p><p style="margin:0">${esc(l.c6)}</p></div>
+      <div class="note">${ICON.alert}<p><strong>${esc(l.c7)}</strong>${esc(l.c8)}</p></div></div>
+      <div class="foot"><button class="btn btn-secondary" data-act="another">${esc(l.c9)}</button></div>`;
+  },
+};
+
+function render(focusSel) {
+  const l = L();
+  document.documentElement.lang = S.lang;
+  $('#demoBanner').textContent = l.banner;
+  $('#appTitle').textContent = l.appTitle;
+  const lb = $('#langBtn'); lb.textContent = l.lang; lb.lang = l.langOther;
+  $('#backLabel').textContent = l.back;
+  $('#backBtn').hidden = !S.history.length || S.screen === 'done';
+  $('#demoH').textContent = l.demoH; $('#offlineLabel').textContent = l.offline;
+  $('#qrDemo').textContent = l.qr; $('#resetDemo').textContent = l.reset;
+  $('#signalBar').hidden = !(S.offline && !['emergency', 'call', 'done'].includes(S.screen));
+  $('#signalBar').textContent = l.noSignal;
+  $('#app').innerHTML = SCREENS[S.screen]();
+  const h = $('#app h1');
+  const st = stepOf(S.screen);
+  document.title = (st ? l.step(st[0], st[1]) + ': ' : '') + (h ? h.textContent : '') + ' — ' + l.appTitle;
+  if (S.screen === 'what') renderPhotos();
+  if (S.screen === 'access') renderSend();
+  const f = focusSel ? $(focusSel) : h;
+  if (f) f.focus({ preventScroll: !focusSel });
+  if (!focusSel) window.scrollTo(0, 0);
+}
+function go(scr, push = true) {
+  if (push && S.screen !== scr) S.history.push(S.screen);
+  S.screen = scr; S.errors = {}; render(); saveDraft();
+}
+function goBack() {
+  const prev = S.history.pop(); if (!prev) return;
+  S.screen = prev; S.errors = {}; render(); saveDraft();
+}
+
+/* ── photos ── */
+function renderPhotos() {
+  const box = $('#photos'); if (!box) return; const l = L();
+  box.innerHTML = S.photos.map((p, i) => `<div class="thumb ${p.status === 'failed' ? 'failed' : ''}">
+      <img src="${p.url}" alt="${esc(l.photoAlt(i + 1))}">
+      ${p.status === 'uploading' ? `<span class="state">${esc(l.uploading)}</span>` : ''}
+      ${p.status === 'failed' ? `<button class="retry" data-act="retryPhoto" data-i="${i}">${esc(l.retry)}</button>` : ''}
+      <button class="x" data-act="removePhoto" data-i="${i}" aria-label="${esc(l.q16)} ${i + 1}">${ICON.x}</button></div>`).join('')
+    + `<button class="addphoto" data-act="addPhoto" ${S.photos.length >= 5 ? 'disabled' : ''}>${ICON.cam}<span>${esc(l.q15)}</span></button>`;
+  const up = S.photos.filter((p) => p.status === 'uploading').length;
+  const bad = S.photos.filter((p) => p.status === 'failed').length;
+  $('#photoHint').textContent = bad ? l.q18(bad) : up ? l.q17(up) : S.photos.length >= 5 ? l.q19 : '';
+}
+function upload(p) {
+  p.status = 'uploading'; renderPhotos();
+  setTimeout(() => {
+    p.status = S.offline ? 'failed' : 'done';
+    const idx = S.photos.indexOf(p) + 1;
+    if (idx > 0) say(p.status === 'done' ? L().q24(idx) : L().q18(1));
+    renderPhotos(); if (S.screen === 'access') renderSend();
+  }, 1400 + Math.random() * 900);
+}
+
+/* ── validation ── */
+function validate(scr) {
+  const l = L(), d = S.d, e = {};
+  if (scr === 'where' && !(S.returning && !S.editProfile)) {
+    if (!d.code && !d.freeName) e.code = l.w10;
+    if (!d.apt.trim()) e.apt = l.w11;
+  }
+  if (scr === 'notlisted' && !d.freeName.trim()) e.freeName = l.w8;
+  if (scr === 'who') {
+    if (!d.name.trim()) e.name = l.h6;
+    let digits = d.cell.replace(/\D/g, ''); if (digits.length === 11 && digits[0] === '1') digits = digits.slice(1);
+    if (!digits) e.cell = l.h7; else if (digits.length !== 10) e.cell = l.h8(digits.length);
+  }
+  if (scr === 'what') {
+    if (d.cat === '') e.cat = l.q22;
+    if (d.where === '') e.where = l.q23;
+    if (!d.desc.trim()) e.desc = l.q20;
+    if (d.long === '') e.long = l.q23;
+    if (d.worse === '') e.worse = l.q23;
+  }
+  if (scr === 'access') {
+    if (d.entry === '') e.entry = l.a11;
+    if (String(d.entry) === '1' && !d.times.length) e.times = l.a12;
+    if (d.pets === '') e.pets = l.q23;
+  }
+  S.errors = e;
+  const first = Object.keys(e)[0];
+  if (first) { render('#f-' + first); return false; }
+  return true;
+}
+function matchWords(text) {
+  const t = ' ' + text.toLowerCase().replace(/[^\p{L}\s]/gu, ' ') + ' ';
+  const hits = EMERGENCY_WORDS.filter((w) => t.includes(' ' + w + ' '));
+  return hits.filter((w) => !hits.some((o) => o !== w && o.includes(w)));
+}
+
+/* ── sending ── */
+function renderSend() {
+  const foot = $('#sendFoot'), note = $('#sendNote'); if (!foot) return; const l = L();
+  const pending = S.photos.filter((p) => p.status === 'uploading').length;
+  let label = l.s1;
+  if (S.sending) label = S.sendNote === 'slow' ? l.s3 : pending ? l.s2(pending) : (S.sendNote === 'retry' ? l.sendingNow : l.sending);
+  foot.innerHTML = `<button class="btn btn-primary" data-act="send" ${S.sending ? 'disabled' : ''}>${S.sending ? '<span class="spinner" aria-hidden="true"></span>' : ''}${esc(label)}</button>`;
+  note.innerHTML = S.attempts && !S.sending
+    ? `<div class="note alert" role="alert">${ICON.alert}<p>${esc(l.notSentNoSignal)}${S.attempts >= 3 ? `<br><br>${esc(l.stillFailing)}<br><button class="btn btn-secondary" style="margin-top:8px" data-act="copy">${esc(l.copyMine)}</button>` : ''}</p></div>` : '';
+}
+function send(isRetry) {
+  if (S.sending) return;
+  S.sending = true; S.sendNote = isRetry ? 'retry' : ''; renderSend();
+  const started = Date.now();
+  const slow = setTimeout(() => { S.sendNote = 'slow'; renderSend(); say(L().s3); }, 10000);
+  const finish = () => {
+    clearTimeout(slow); S.sending = false;
+    if (S.offline) {
+      S.attempts++; store.set('unsent', { d: S.d, at: Date.now() }); renderSend();
+      say(S.attempts >= 3 ? L().stillFailing : L().notSentNoSignal, true);
+      return;
+    }
+    S.photos.forEach((p) => { if (p.status === 'uploading') p.status = 'failed'; });
+    const num = window.PEI_nextNum ? window.PEI_nextNum() : 'HR-' + (1040 + Math.floor(Math.random() * 900));
+    S.result = { num, prop: propName() };
+    store.set('last', { num, cat: S.d.cat, at: Date.now() });
+    window.PEI_addRequest?.(Object.assign({}, S.d, {
+      num, at: Date.now(), lang: S.lang,
+      photos: S.photos.filter((p) => p.status === 'done').length,
+      photosMissing: S.photos.filter((p) => p.status === 'failed').length,
+      possibleEmergency: S.maybeDone ? S.matched : '',
+    }));
+    store.set('profile', { code: S.d.code, freeName: S.d.freeName, freeCity: S.d.freeCity, apt: S.d.apt, name: S.d.name, cell: S.d.cell, site: S.d.site });
+    store.del('draft'); store.del('unsent');
+    S.attempts = 0; S.history = []; S.screen = 'done'; render();
+  };
+  const tick = () => {
+    const waiting = S.photos.some((p) => p.status === 'uploading') && Date.now() - started < 30000;
+    if (waiting) { renderSend(); setTimeout(tick, 400); } else setTimeout(finish, 900);
+  };
+  tick();
+}
+function copyText() {
+  const l = L(), d = S.d;
+  const ans = (arr, v) => (v === '' ? '' : arr[v]);
+  return `${l.copyHead}: ${propName()}, ${l.aptPrefix.toLowerCase()} ${d.apt}. ${ans(l.cats, d.cat)}: ${d.desc} ${l.started}: ${ans(l.longs, d.long)}. ${l.worse}: ${ans(l.worses, d.worse)}. ${l.enter}: ${ans(l.yesno, d.entry)}. ${l.there}: ${d.times.map((i) => l.times[i]).join(', ') || '—'}. ${l.petsL}: ${ans(l.pets, d.pets)}${d.petOther ? ' (' + d.petOther + ')' : ''}. ${d.name}, ${d.cell}.`;
+}
+
+/* ── property sheet ── */
+function openSheet() {
+  const l = L(), sh = $('#sheet');
+  sh.innerHTML = `<div class="sheet-in"><div class="sheet-top"><h2 id="sheetTitle">${esc(l.w3)}</h2>
+    <button class="iconbtn" data-act="closeSheet" aria-label="${esc(l.close)}">${ICON.x}</button></div>
+    <div class="sheet-search"><label class="sr" for="propSearch">${esc(l.p2)}</label>
+      <input class="input" id="propSearch" type="search" placeholder="${esc(l.p2)}" autocomplete="off"></div>
+    <div class="sheet-list" id="sheetList"></div></div>`;
+  const draw = (q) => {
+    q = q.trim().toLowerCase();
+    const hits = PROPS.filter((p) => !q || (p.name + ' ' + p.city).toLowerCase().includes(q));
+    let html = '';
+    for (const st of ['GA', 'FL', 'AL', 'TN']) {
+      const g = hits.filter((p) => p.st === st); if (!g.length) continue;
+      html += `<p class="group">${STATES[st]}</p><div class="list">${g.map((p) => `<button class="row" data-act="choose" data-code="${p.code}"><span class="grow">${esc(p.name)}<small>${esc(p.city)}</small></span></button>`).join('')}</div>`;
+    }
+    if (!hits.length) html += `<p class="hint" style="padding:16px" role="status">${esc(l.p5(q))}</p>`;
+    html += `<div class="list"><button class="row" data-act="notListed">${ICON.plus}<span class="grow"><strong>${esc(l.p4)}</strong></span></button></div>`;
+    $('#sheetList').innerHTML = html;
+  };
+  draw('');
+  sh.showModal(); $('#propSearch').focus();
+  $('#propSearch').addEventListener('input', (e) => draw(e.target.value));
+}
+function closeSheet() { const sh = $('#sheet'); if (sh.open) sh.close(); }
+$('#sheet').addEventListener('close', () => { const b = $('#f-code') || $('[data-act="pick"]'); if (b) b.focus(); });
+
+/* ── dialogs on opening ── */
+function prompt(kind, saved) {
+  const l = L(), dlg = $('#dlg'), d = saved.d;
+  const cat = d.cat === '' ? '' : l.cats[d.cat];
+  const pn = d.code ? prop(d.code)?.name : d.freeName;
+  if (kind === 'unsent') {
+    dlg.innerHTML = `<div class="dbody"><span style="color:var(--danger)">${ICON.alert.replace('aria-hidden', 'width="28" height="28" aria-hidden')}</span>
+      <h2 tabindex="-1">${esc(l.unsentT(fmtTime(saved.at)))}</h2><p>${esc([cat, d.apt ? l.aptPrefix + ' ' + d.apt : '', pn].filter(Boolean).join(', '))}.</p>
+      <button class="btn btn-primary" data-act="sendUnsent">${esc(l.sendNow)}</button><button class="btn btn-quiet" data-act="deleteUnsent">${esc(l.deleteIt)}</button></div>`;
+  } else {
+    const missing = saved.photosPending;
+    dlg.innerHTML = `<div class="dbody"><h2 tabindex="-1">${esc(l.resumeT)}</h2><p>${esc(l.resumeB(fmtTime(saved.at), cat, d.apt, pn))}</p>
+      ${missing ? `<p>${esc(S.lang === 'es' ? (missing === 1 ? '1 foto no terminó de subirse. Agréguela de nuevo en la pantalla del problema.' : `${missing} fotos no terminaron de subirse. Agréguelas de nuevo en la pantalla del problema.`) : (missing === 1 ? '1 photo didn\'t finish uploading. Add it again on the problem screen.' : `${missing} photos didn't finish uploading. Add them again on the problem screen.`))}</p>` : ''}
+      <button class="btn btn-primary" data-act="resume">${esc(l.cont)}</button><button class="btn btn-quiet" data-act="startOver">${esc(l.startOver)}</button></div>`;
+  }
+  dlg.dataset.kind = kind;
+  dlg.showModal(); $('#dlg h2').focus();
+}
+$('#dlg').addEventListener('cancel', (e) => {
+  if ($('#dlg').dataset.kind === 'resume') { e.preventDefault(); act('resume'); }
+});
+
+/* ── actions ── */
+function act(a, el) {
+  const l = L();
+  switch (a) {
+    case 'emerg': S.tapped = +el.dataset.i; go('call'); break;
+    case 'none': go('where'); break;
+    case 'call': toast(l.demoCall); break;
+    case 'notEmerg': { const i = S.tapped; S.history = []; S.screen = 'emergency'; render(`[data-act="emerg"][data-i="${i}"]`); break; }
+    case 'pick': openSheet(); break;
+    case 'closeSheet': closeSheet(); break;
+    case 'choose': S.d.code = el.dataset.code; S.d.freeName = ''; S.d.freeCity = ''; S.qrUnknown = false; S.fromQR = false; delete S.errors.code; closeSheet(); render('#f-code'); saveDraft(); break;
+    case 'notListed': closeSheet(); S.d.code = ''; go('notlisted'); break;
+    case 'notlistedNext': if (validate('notlisted')) { S.history.pop(); S.screen = 'where'; S.errors = {}; render('#f-apt'); saveDraft(); } break;
+    case 'editProfile': S.editProfile = true; render('#f-apt'); break;
+    case 'next': {
+      const order = skipWho() ? { where: 'what', what: 'access' } : { where: 'who', who: 'what', what: 'access' };
+      if (!validate(S.screen)) break;
+      if (S.screen === 'what' && !S.maybeDone) {
+        const hits = matchWords(S.d.desc);
+        if (hits.length) { S.matched = hits.join(', '); go('maybe'); break; }
+      }
+      go(order[S.screen]); break;
+    }
+    case 'maybeContinue': S.maybeDone = true; S.history.pop(); S.history.push('what'); S.screen = 'access'; S.errors = {}; render(); saveDraft(); break;
+    case 'addPhoto': $('#fileIn').click(); break;
+    case 'removePhoto': { const i = +el.dataset.i; S.photos.splice(i, 1); renderPhotos(); const nx = $(`[data-act="removePhoto"][data-i="${Math.min(i, S.photos.length - 1)}"]`) || $('[data-act="addPhoto"]'); nx && nx.focus(); break; }
+    case 'retryPhoto': upload(S.photos[+el.dataset.i]); break;
+    case 'send': if (validate('access')) send(false); break;
+    case 'copy': {
+      const txt = copyText();
+      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast(l.copied), () => {
+        const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); toast(l.copied); } catch {} ta.remove();
+      });
+      break;
+    }
+    case 'resendPhotos': S.photos.forEach((p) => { if (p.status === 'failed') p.status = 'done'; }); render(); toast(l.photosSent); break;
+    case 'another': {
+      const keep = { code: S.d.code, freeName: S.d.freeName, freeCity: S.d.freeCity, apt: S.d.apt, name: S.d.name, cell: S.d.cell, site: S.d.site };
+      S.d = Object.assign(blank(), keep); S.photos = []; S.maybeDone = false; S.returning = true; S.editProfile = false; S.fromQR = false; S.history = [];
+      go('emergency', false); break;
+    }
+    case 'resume': {
+      const saved = store.get('draft'); $('#dlg').close();
+      if (saved) { S.d = Object.assign(blank(), saved.d); S.returning = !!saved.returning; S.editProfile = !!saved.editProfile; S.history = ['emergency']; go(saved.screen, false); }
+      break;
+    }
+    case 'startOver': store.del('draft'); $('#dlg').close(); begin(true); break;
+    case 'sendUnsent': {
+      const saved = store.get('unsent'); $('#dlg').close();
+      S.d = Object.assign(blank(), saved.d); S.history = []; S.screen = 'access'; render(); send(true); break;
+    }
+    case 'deleteUnsent': store.del('unsent'); $('#dlg').close(); begin(true); break;
+  }
+}
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  e.preventDefault(); act(el.dataset.act, el);
+});
+document.addEventListener('input', (e) => {
+  const k = e.target.dataset?.k; if (!k) return;
+  if (k === 'times') {
+    const v = +e.target.value; S.d.times = e.target.checked ? [...new Set([...S.d.times, v])].sort() : S.d.times.filter((x) => x !== v);
+  } else S.d[k] = e.target.value;
+  if (S.errors[k]) {
+    delete S.errors[k];
+    const holder = e.target.closest('.field'); holder?.querySelector('.err')?.remove();
+    holder?.removeAttribute('aria-invalid'); e.target.removeAttribute('aria-invalid');
+  }
+  if (k === 'desc') { const n = S.d.desc.length; const h = $('#desc-hint'); h.textContent = n >= 1800 ? L().q21(n) : L().q9; if ([1800, 1900, 2000].includes(n)) say(L().q21(n)); }
+  if (k === 'entry' || k === 'pets') render(`[name="${k}"][value="${e.target.value}"]`);
+  saveDraft();
+});
+document.addEventListener('change', (e) => {
+  if (e.target.id !== 'fileIn') return;
+  const files = [...e.target.files].slice(0, 5 - S.photos.length);
+  files.forEach((f) => { const p = { url: URL.createObjectURL(f), status: 'uploading' }; S.photos.push(p); upload(p); });
+  e.target.value = ''; renderPhotos();
+  if (S.photos.length >= 5) say(L().q19);
+});
+$('#backBtn').addEventListener('click', goBack);
+$('#langBtn').addEventListener('click', () => {
+  S.lang = S.lang === 'en' ? 'es' : 'en';
+  render('#langBtn'); say(L().langAnnounce);
+});
+$('#offlineSwitch').addEventListener('click', (e) => {
+  S.offline = !S.offline; e.currentTarget.setAttribute('aria-checked', String(S.offline));
+  $('#signalBar').hidden = !(S.offline && !['emergency', 'call', 'done'].includes(S.screen));
+  if (S.offline) say(L().noSignal);
+  else if (S.screen === 'access' && S.attempts) send(true);
+});
+$('#qrDemo').addEventListener('click', () => { closeSheet(); if ($('#dlg').open) $('#dlg').close(); begin(true, 'riverbend-pc'); });
+$('#resetDemo').addEventListener('click', () => { ['draft', 'unsent', 'last', 'profile'].forEach(store.del); window.PEI_resetQueue?.(); closeSheet(); if ($('#dlg').open) $('#dlg').close(); begin(true); });
+
+/* ── start ── */
+function begin(fresh, qrCode) {
+  S = Object.assign(S, { screen: 'emergency', d: blank(), photos: [], fromQR: false, qrUnknown: false, returning: false, editProfile: false, errors: {}, tapped: -1, matched: '', maybeDone: false, attempts: 0, sending: false, result: null, history: [] });
+  const code = qrCode ?? new URLSearchParams(location.search).get('p');
+  const profile = store.get('profile');
+  if (profile && profile.name) { Object.assign(S.d, profile); S.returning = true; }
+  if (code) {
+    if (prop(code)) { if (S.d.code !== code) { S.d.code = code; S.d.freeName = ''; S.returning = false; S.d.apt = profile && profile.code === code ? profile.apt : ''; } S.fromQR = !S.returning; }
+    else S.qrUnknown = true;
+  }
+  render();
+  if (fresh) return;
+  const unsent = store.get('unsent');
+  if (unsent && Date.now() - unsent.at < 7 * DAY) { prompt('unsent', unsent); return; }
+  const draft = store.get('draft');
+  if (draft && Date.now() - draft.at < DAY) prompt('resume', draft);
+  else if (draft) store.del('draft');
+}
+window.PEI_T = T;
+window.PEI_formRender = () => render();
+begin(false);
+})();
+</script>
+<script>
+/* ── coordinator queue ── */
+(() => {
+'use strict';
+const T = window.PEI_T, PROPS = window.PEI_PROPS, EN = T.en;
+const KEY = 'pei.queue', H = 36e5, D = 864e5;
+const ls = {
+  get() { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } },
+  set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} },
+};
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const lc = (s) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : '');
+const DAYS = { en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], es: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'] };
+const MISSING = [
+  { en: 'your apartment number', es: 'el número de su apartamento', label: 'Apartment number' },
+  { en: "a time you're usually there", es: 'un horario en que suele estar', label: 'A time they are usually there' },
+  { en: "a few more words about what's wrong", es: 'unas palabras más sobre qué pasa', label: "What's wrong, in more detail" },
+  { en: 'a photo of the problem', es: 'una foto del problema', label: 'A photo' },
+];
+
+function seed() {
+  const n = Date.now();
+  const base = { site: '', petOther: '', notes: '', photos: 0, photosMissing: 0, possibleEmergency: '', freeName: '', freeCity: '', times: [], example: true };
+  const mk = (o) => Object.assign({}, base, o, { log: [{ at: o.at, text: 'Arrived by form' }, ...(o.log || [])] });
+  return [
+    mk({ id: 'x1', num: 'HR-1035', at: n - 5 * H, status: 'New', lang: 'en', code: 'oak-tlh', apt: '7C', name: 'Marcus Bell', cell: '(850) 555-0188', cat: 5, where: 0, desc: 'Stove smells like gas when the burner first lights, then it goes away.', long: 1, worse: 2, entry: 1, times: [2, 3], pets: 0, possibleEmergency: 'gas' }),
+    mk({ id: 'x2', num: 'HR-1033', at: n - 26 * H, status: 'New', lang: 'es', code: 'magnolia-vld', apt: '214', name: 'Luis Ortega', cell: '(229) 555-0134', cat: 3, where: 2, desc: 'El aire sale caliente y el dormitorio no se enfría en la noche.', long: 1, worse: 0, entry: 1, times: [2, 3], pets: 0, photos: 1 }),
+    mk({ id: 'x3', num: 'HR-1034', at: n - 20 * H, status: 'New', lang: 'en', code: 'magnolia-vld', apt: '214', name: 'Dwayne Harris', cell: '(229) 555-0177', cat: 3, where: 3, desc: 'AC running but blowing warm air.', long: 1, worse: 0, entry: 0, pets: 0 }),
+    mk({ id: 'x4', num: 'HR-1031', at: n - 30 * H, status: 'New', lang: 'en', code: 'landing-cha', apt: 'B12', name: 'Kevin Pruitt', cell: '(423) 555-0119', cat: 1, where: 1, desc: 'Toilet keeps running after flushing.', long: 2, worse: 2, entry: 0, pets: 1, notes: 'Dog is friendly but will bark.' }),
+    mk({ id: 'x5', num: 'HR-1029', at: n - 3 * D, status: 'Needs Info', lang: 'en', code: 'cedar-dot', apt: '3', name: 'Ray Simmons', cell: '(334) 555-0163', cat: 13, where: 6, desc: 'Its broken again', long: 1, worse: 2, entry: 1, times: [4], pets: 0, log: [{ at: n - 3 * D + 2 * H, text: 'Needs Info: what is broken. Worker texted.' }] }),
+    mk({ id: 'x6', num: 'HR-1022', at: n - 10 * D, status: 'Sent to Property', sentAt: n - 9 * D, sentMethod: 'Online portal', lang: 'es', code: 'riverbend-pc', apt: '118', name: 'José Hernández', cell: '(850) 555-0102', cat: 7, where: 0, desc: 'Hormigas en la cocina, cerca del fregadero.', long: 2, worse: 0, entry: 0, pets: 0, log: [{ at: n - 9 * D, text: 'Sent to property through the portal' }, { at: n - 4 * D, text: 'Called leasing office. No answer.' }] }),
+    mk({ id: 'x7', num: 'HR-1026', at: n - 3 * D, status: 'Sent to Property', sentAt: n - 2 * D, sentMethod: 'Email', lang: 'en', code: 'landing-cha', apt: '204', name: 'Chris Lowe', cell: '(423) 555-0150', cat: 5, where: 4, desc: 'Dryer runs but does not heat.', long: 1, worse: 2, entry: 0, pets: 0, log: [{ at: n - 2 * D, text: 'Sent to property by email' }] }),
+    mk({ id: 'x8', num: 'HR-1018', at: n - 8 * D, status: 'Fixed', sentAt: n - 7 * D, sentMethod: 'Email', lang: 'en', code: 'oak-tlh', apt: '12A', name: 'Andre Davis', cell: '(850) 555-0171', cat: 4, where: 2, desc: 'Bedroom ceiling light out. New bulb did not fix it.', long: 1, worse: 1, entry: 0, pets: 0, log: [{ at: n - 7 * D, text: 'Sent to property by email' }, { at: n - 1 * D, text: 'Worker confirmed it is fixed' }] }),
+  ];
+}
+let Q = ls.get() || seed();
+let view = 'triage', sel = null, panel = null, me = 'Tonya';
+const save = () => ls.set(Q);
+
+window.PEI_addRequest = (r) => { Q.unshift(Object.assign({ id: 'r' + Date.now(), status: 'New', example: false, log: [{ at: r.at, text: 'Arrived by form' }] }, r)); save(); };
+window.PEI_nextNum = () => 'HR-' + (Math.max(1040, ...Q.map((r) => +r.num.slice(3))) + 1);
+window.PEI_resetQueue = () => { Q = seed(); save(); sel = null; panel = null; };
+
+const propOf = (r) => PROPS.find((p) => p.code === r.code);
+const pname = (r) => propOf(r)?.name || (r.freeName ? r.freeName + ' (not on the list)' : '—');
+const ago = (ts) => { const h = Math.floor((Date.now() - ts) / H); if (h < 1) return 'just now'; if (h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago'); const d = Math.floor(h / 24); return d + (d === 1 ? ' day ago' : ' days ago'); };
+const daysSince = (ts) => Math.floor((Date.now() - ts) / D);
+const when = (ts) => new Date(ts).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const isOpen = (r) => !['Closed', 'Duplicate'].includes(r.status);
+function dupOf(r) {
+  if (!isOpen(r)) return null;
+  return Q.find((o) => o !== r && isOpen(o) && o.at < r.at && Math.abs(o.at - r.at) < 7 * D
+    && (o.code ? o.code === r.code : o.freeName && o.freeName === r.freeName) && String(o.apt).toLowerCase() === String(r.apt).toLowerCase() && String(o.cat) === String(r.cat)) || null;
+}
+const ans = (arr, v) => (v === '' || v == null ? '—' : arr[v]);
+const timesText = (r, L = EN) => (r.times && r.times.length ? r.times.map((i) => L.times[i]).join(', ') : (+r.entry === 0 ? 'any time' : '—'));
+const petsText = (r, L = EN) => ans(L.pets, r.pets) + (r.petOther ? ` (${r.petOther})` : '');
+
+function lists() {
+  const triage = Q.filter((r) => r.status === 'New').sort((a, b) => (!!b.possibleEmergency - !!a.possibleEmergency) || a.at - b.at);
+  const waiting = Q.filter((r) => r.status === 'Sent to Property').sort((a, b) => a.sentAt - b.sentAt);
+  return { triage, waiting, all: Q };
+}
+function chips(r) {
+  const c = [];
+  if (r.possibleEmergency && r.status === 'New') c.push('<span class="chip-s danger">Possible emergency</span>');
+  const d = dupOf(r); if (d) c.push(`<span class="chip-s warn">Possible duplicate of ${esc(d.num)}</span>`);
+  if (r.status === 'Sent to Property') { const n = daysSince(r.sentAt); c.push(`<span class="chip-s ${n >= 5 ? 'warn' : ''}">${n} ${n === 1 ? 'day' : 'days'} since sent</span>`); }
+  if (r.lang === 'es') c.push('<span class="chip-s">Spanish</span>');
+  if (!r.code) c.push('<span class="chip-s warn">Place not on the list</span>');
+  if (view === 'all') c.unshift(`<span class="chip-s status">${esc(r.status)}</span>`);
+  if (r.example) c.push('<span class="chip-s">Example</span>');
+  return `<div class="chips">${c.join('')}</div>`;
+}
+function row(r) {
+  return `<button class="q-row" data-q="open" data-id="${r.id}" ${sel === r.id ? 'aria-current="true"' : ''}>
+    <span class="l1"><span><span class="num">${esc(r.num)}</span> · Apt ${esc(r.apt)}, ${esc(pname(r))}</span><span class="age">${esc(ago(r.at))}</span></span>
+    <span class="l2">${esc(EN.cats[r.cat])}: ${esc(r.desc)}</span>${chips(r)}</button>`;
+}
+
+/* ── messages ── */
+function greet(p) { const c = p?.contact || ''; return c.includes(',') ? c.split(',')[0].split(' ')[0] : ''; }
+function subject(r) { return `Plateau Excavation — Apt ${r.apt} — ${EN.cats[r.cat]} — ${r.num}`; }
+function emailBody(r) {
+  const p = propOf(r), g = greet(p);
+  return `Hi${g ? ' ' + g : ''},
+
+Maintenance request for one of the apartments Plateau Excavation leases at ${p.name}.
+
+Apartment: ${r.apt}
+Problem: ${EN.cats[r.cat]} (${ans(EN.wheres, r.where)})
+Started: ${ans(EN.longs, r.long)}${+r.worse === 0 ? ', getting worse' : ''}
+Our reference: ${r.num}
+
+What our resident reported${r.lang === 'es' ? ' (in Spanish)' : ''}:
+"${r.desc}"
+
+Access:
+• OK to enter when nobody is home: ${ans(EN.yesno, r.entry)}
+• Best times: ${timesText(r)}
+• Pets: ${petsText(r)}${r.notes ? '\n• Notes: ' + r.notes : ''}
+
+Resident: ${r.name}, ${r.cell}. Call ahead if you need to.
+${r.photos ? `\n${r.photos} ${r.photos === 1 ? 'photo' : 'photos'} attached.\n` : ''}
+Could you reply with when someone can look at it? A one-line answer is fine.
+
+Thanks,
+${me}
+Housing Coordinator, Plateau Excavation
+housing@ · (XXX) XXX-XXXX`;
+}
+function phoneScript(r) {
+  return `"Hi, this is ${me} with Plateau Excavation. We hold the lease on apartment ${r.apt}.
+
+I need to report a maintenance problem: ${lc(EN.cats[r.cat])}. ${r.desc}${r.lang === 'es' ? ' (translate from Spanish)' : ''} It started ${lc(ans(EN.longs, r.long))}.
+
+It's ${+r.entry === 0 ? 'fine' : 'not OK'} to go in when nobody is home. Best times: ${timesText(r)}. Pets: ${petsText(r)}.
+
+Who should I follow up with, and is there a work order number?"`;
+}
+function portalText(r) {
+  return `Apt ${r.apt} — ${EN.cats[r.cat]}: ${r.desc} Started ${lc(ans(EN.longs, r.long))}${+r.worse === 0 ? ', getting worse' : ''}. OK to enter when nobody is home: ${ans(EN.yesno, r.entry).toLowerCase()}; best times: ${timesText(r).toLowerCase()}; pets: ${petsText(r).toLowerCase()}. Resident ${r.name} ${r.cell}. Plateau Excavation (leaseholder), ref ${r.num}.`;
+}
+function followUp(r) {
+  const p = propOf(r), g = greet(p);
+  return `Subject: Re: ${subject(r)}
+
+Hi${g ? ' ' + g : ''},
+
+Following up on this one — sent ${new Date(r.sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, and we haven't heard back yet.
+
+Apartment ${r.apt}, ${lc(EN.cats[r.cat])}. Our resident is still in the apartment.
+
+Can you let me know if it's scheduled? If someone already looked at it, just say so and I'll close it out on our end.
+
+Thanks,
+${me}`;
+}
+function workerText(r, kind, extra) {
+  const L = T[r.lang], cat = lc(L.cats[r.cat]), first = (r.name || '').split(' ')[0], p = pname(r);
+  if (r.lang === 'es') return {
+    sent: `Hola ${first}, le escribe la oficina de vivienda de Plateau. Su solicitud de ${cat} (${r.num}) ya está con ${p}. Le avisamos por mensaje cuando den una fecha. — ${me}`,
+    date: `Hola ${first}, mantenimiento va a ir el ${extra} por su solicitud de ${cat} (${r.num}). Responda aquí si no llega nadie. — ${me}`,
+    fixed: `Hola ${first}, ¿ya se arregló el problema de ${cat}? Responda sí o no para cerrar la solicitud ${r.num}. — ${me}`,
+    needs: `Hola ${first}, para enviar su solicitud (${r.num}) a ${p}, necesitamos ${extra}. Respóndanos aquí con el dato. — ${me}`,
+  }[kind];
+  return {
+    sent: `Hi ${first} — Plateau housing. Your ${cat} request (${r.num}) is with ${p} now. We'll text you when they give a date. — ${me}`,
+    date: `Hi ${first} — maintenance is coming ${extra} for your ${cat} request (${r.num}). Reply here if nobody comes. — ${me}`,
+    fixed: `Hi ${first} — is the ${cat} problem fixed? Reply yes or no so we can close request ${r.num}. — ${me}`,
+    needs: `Hi ${first} — to send your request (${r.num}) to ${p}, we need ${extra}. Reply here with it. — ${me}`,
+  }[kind];
+}
+function textBox(r, kind, extra, title) {
+  const txt = workerText(r, kind, extra);
+  return `<div class="panel"><h3>${esc(title)}</h3><p class="hint">To ${esc(r.name)}, ${esc(r.cell)}${r.lang === 'es' ? ' · in Spanish, the language they used' : ''}</p>
+    <pre class="mail" id="txt">${esc(txt)}</pre><div class="q-actions"><button class="btn btn-secondary" data-q="copy" data-src="txt">Copy text</button></div></div>`;
+}
+
+/* ── panels ── */
+function forwardPanel(r) {
+  const p = propOf(r);
+  if (!p) {
+    return `<div class="panel"><h3>Match the place first</h3><p>The worker typed "${esc(r.freeName)}"${r.freeCity ? ', ' + esc(r.freeCity) : ''}. Pick the complex on the list it belongs to.</p>
+      <label class="label" for="assign">Apartment complex</label>
+      <select class="input" id="assign"><option value="">Choose…</option>${PROPS.map((x) => `<option value="${x.code}">${esc(x.name)} — ${esc(x.city)}</option>`).join('')}</select>
+      <div class="q-actions"><button class="btn btn-primary" data-q="assign">Use this complex</button><button class="btn btn-quiet" data-q="cancel">Cancel</button></div></div>`;
+  }
+  if (p.method === 'Phone') {
+    return `<div class="panel"><h3>Call ${esc(p.contact)} · ${esc(p.to)}</h3><pre class="mail">${esc(phoneScript(r))}</pre>
+      <label class="label" for="spoke">Who did you speak to?</label><input class="input" id="spoke">
+      <label class="label" for="wo">Work order number <span class="opt">(optional)</span></label><input class="input" id="wo">
+      <div class="q-actions"><button class="btn btn-primary" data-q="markSent" data-m="Phone">Mark as sent by phone</button><button class="btn btn-quiet" data-q="cancel">Cancel</button></div></div>`;
+  }
+  if (p.method === 'Online portal') {
+    return `<div class="panel"><h3>Paste into the portal · ${esc(p.to)}</h3><pre class="mail" id="portal">${esc(portalText(r))}</pre>
+      <div class="q-actions"><button class="btn btn-secondary" data-q="copy" data-src="portal">Copy text</button><button class="btn btn-primary" data-q="markSent" data-m="Online portal">Mark as sent through the portal</button><button class="btn btn-quiet" data-q="cancel">Cancel</button></div></div>`;
+  }
+  return `<div class="panel"><h3>Email to ${esc(p.contact)}</h3>
+    <dl class="facts"><dt>From</dt><dd>housing@ (shared mailbox)</dd><dt>To</dt><dd>${esc(p.to)}</dd><dt>Subject</dt><dd>${esc(subject(r))}</dd></dl>
+    <pre class="mail" id="mail">${esc(emailBody(r))}</pre>
+    <div class="q-actions"><button class="btn btn-primary" data-q="markSent" data-m="Email">Send from housing@</button><button class="btn btn-secondary" data-q="copy" data-src="mail">Copy email</button><button class="btn btn-quiet" data-q="cancel">Cancel</button></div>
+    <p class="hint">In the demo, nothing leaves this page.</p></div>`;
+}
+function needsPanel(r) {
+  return `<div class="panel"><h3>What's missing?</h3>
+    <fieldset class="field"><legend class="sr">What's missing</legend><div class="checks">${MISSING.map((m, i) => `<label class="check"><input type="radio" name="miss" value="${i}" ${i === 2 ? 'checked' : ''}>${esc(m.label)}</label>`).join('')}</div></fieldset>
+    <div class="q-actions"><button class="btn btn-primary" data-q="markNeeds">Mark Needs Info</button><button class="btn btn-quiet" data-q="cancel">Cancel</button></div></div>`;
+}
+function datePanel() {
+  return `<div class="panel"><h3>Date the property gave</h3><label class="label" for="day">Day maintenance is coming</label>
+    <select class="input" id="day">${DAYS.en.map((d, i) => `<option value="${i}">${d}</option>`).join('')}</select>
+    <div class="q-actions"><button class="btn btn-primary" data-q="setDate">Save and write the text</button><button class="btn btn-quiet" data-q="cancel">Cancel</button></div></div>`;
+}
+
+function detail(r) {
+  if (!r) return `<p class="q-empty">Pick a request to see it here.</p>`;
+  const p = propOf(r), d = dupOf(r);
+  const facts = `
+    <dl class="facts">
+      <dt>Worker</dt><dd>${esc(r.name)} · ${esc(r.cell)}${r.lang === 'es' ? ' · wrote in Spanish' : ''}${r.site ? ' · job site ' + esc(r.site) : ''}</dd>
+      <dt>Where</dt><dd>Apartment ${esc(r.apt)}, ${esc(pname(r))}${p ? ', ' + esc(p.city) : (r.freeCity ? ', ' + esc(r.freeCity) : '')}</dd>
+      <dt>Problem</dt><dd>${esc(EN.cats[r.cat])} · ${esc(ans(EN.wheres, r.where))}</dd>
+      <dt>In their words</dt><dd>"${esc(r.desc)}"</dd>
+      <dt>Started</dt><dd>${esc(ans(EN.longs, r.long))} · getting worse: ${esc(ans(EN.worses, r.worse).toLowerCase())}</dd>
+      <dt>Photos</dt><dd>${r.photos ? r.photos + ' attached' : 'None'}${r.photosMissing ? ` · ${r.photosMissing} did not arrive` : ''}</dd>
+      <dt>Getting in</dt><dd>OK to enter when nobody is home: ${esc(ans(EN.yesno, r.entry))}<br>Usually there: ${esc(timesText(r))}<br>Pets: ${esc(petsText(r))}${r.notes ? '<br>Notes: ' + esc(r.notes) : ''}</dd>
+      <dt>Arrived</dt><dd>${esc(when(r.at))} · by form</dd>
+      ${r.sentAt ? `<dt>Sent</dt><dd>${esc(when(r.sentAt))} · ${esc(r.sentMethod)} · ${daysSince(r.sentAt)} days ago</dd>` : ''}
+    </dl>`;
+  const contact = p ? `<div><p class="sec">Maintenance contact</p><dl class="facts"><dt>Contact</dt><dd>${esc(p.contact)}</dd><dt>How to submit</dt><dd>${esc(p.method)} · ${esc(p.to)}</dd><dt>Usual response</dt><dd>${esc(p.typical)}</dd>${p.notes ? `<dt>Notes</dt><dd>${esc(p.notes)}</dd>` : ''}</dl></div>` : '';
+  let actions = '';
+  if (r.status === 'New') actions = `<button class="btn btn-primary" data-q="panel" data-p="forward">Forward to property</button><button class="btn btn-secondary" data-q="panel" data-p="needs">Needs info</button>${d ? `<button class="btn btn-secondary" data-q="merge">Merge into ${esc(d.num)}</button>` : ''}`;
+  if (r.status === 'Needs Info') actions = `<button class="btn btn-primary" data-q="status" data-s="New">Worker replied — back to triage</button><button class="btn btn-secondary" data-q="panel" data-p="needs">Ask again</button>`;
+  if (r.status === 'Sent to Property') actions = `<button class="btn btn-primary" data-q="panel" data-p="date">Property gave a date</button><button class="btn btn-secondary" data-q="panel" data-p="follow">Follow up</button><button class="btn btn-secondary" data-q="panel" data-p="askFixed">Ask worker if it's fixed</button><button class="btn btn-secondary" data-q="status" data-s="Fixed">Mark fixed</button>`;
+  if (r.status === 'Fixed') actions = `<button class="btn btn-primary" data-q="status" data-s="Closed">Close</button><button class="btn btn-secondary" data-q="status" data-s="Sent to Property">Not fixed — back to waiting</button>`;
+  if (r.status === 'Closed' || r.status === 'Duplicate') actions = `<button class="btn btn-secondary" data-q="status" data-s="New">Reopen</button>`;
+  let pan = '';
+  if (panel === 'forward') pan = forwardPanel(r);
+  else if (panel === 'needs') pan = needsPanel(r);
+  else if (panel === 'date') pan = datePanel();
+  else if (panel === 'follow') pan = `<div class="panel"><h3>Follow-up, in the same email thread</h3><pre class="mail" id="fu">${esc(followUp(r))}</pre><div class="q-actions"><button class="btn btn-primary" data-q="followSent">Send from housing@</button><button class="btn btn-secondary" data-q="copy" data-src="fu">Copy email</button><button class="btn btn-quiet" data-q="cancel">Cancel</button></div></div>`;
+  else if (panel === 'askFixed') pan = textBox(r, 'fixed', '', 'Text to the worker');
+  else if (panel && panel.startsWith('text:')) { const [, k, x] = panel.split(':'); pan = textBox(r, k, x, 'Text to the worker'); }
+  return `<button class="btn btn-quiet q-back" data-q="back">← All requests</button>
+    <div><h2 tabindex="-1" id="qTitle"><span class="num">${esc(r.num)}</span> · Apartment ${esc(r.apt)}</h2><p class="hint" style="margin-top:4px">${esc(pname(r))}</p></div>
+    <div class="chips"><span class="chip-s status">${esc(r.status)}</span>${r.example ? '<span class="chip-s">Example</span>' : ''}</div>
+    ${r.possibleEmergency && isOpen(r) ? `<div class="note alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v4" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/></svg><p><strong>Possible emergency</strong>The worker wrote "${esc(r.possibleEmergency)}" and chose to send it anyway. Call ${esc(r.name.split(' ')[0])} at ${esc(r.cell)} before anything else.</p></div>` : ''}
+    ${d ? `<div class="note"><p><strong>Same apartment and problem as ${esc(d.num)}</strong>${esc(d.name)} reported it ${esc(ago(d.at))}. Merge this one instead of forwarding it twice.</p></div>` : ''}
+    <div class="q-actions">${actions}</div>${pan}
+    <div><p class="sec">Request</p>${facts}</div>${contact}
+    <div><p class="sec">History</p><ol class="log">${r.log.slice().reverse().map((l) => `<li>${esc(when(l.at))} — ${esc(l.text)}</li>`).join('')}</ol></div>`;
+}
+
+function render(focusTitle) {
+  const host = $('#queueView'); if (host.hidden) return;
+  const L = lists();
+  const items = view === 'triage' ? L.triage : view === 'waiting' ? L.waiting : L.all;
+  const r = Q.find((x) => x.id === sel);
+  let listHtml;
+  if (view === 'all') {
+    listHtml = ['New', 'Needs Info', 'Sent to Property', 'Fixed', 'Closed', 'Duplicate'].map((s) => {
+      const g = Q.filter((x) => x.status === s).sort((a, b) => b.at - a.at); if (!g.length) return '';
+      return `<p class="q-group">${esc(s)}</p>${g.map(row).join('')}`;
+    }).join('');
+  } else listHtml = items.map(row).join('') || `<p class="q-empty">${view === 'triage' ? 'Nothing new. Requests from the form land here.' : 'Nothing waiting on a property.'}</p>`;
+  host.innerHTML = `<div class="q-head"><h1>Maintenance requests</h1>
+      <label for="meSel">Working as <select id="meSel"><option ${me === 'Tonya' ? 'selected' : ''}>Tonya</option><option ${me === 'Jordan' ? 'selected' : ''}>Jordan</option></select></label></div>
+    <div class="q-tabs" role="tablist" aria-label="Views">
+      <button class="q-tab" role="tab" aria-selected="${view === 'triage'}" data-q="view" data-v="triage">Triage today<span class="q-count">${L.triage.length}</span></button>
+      <button class="q-tab" role="tab" aria-selected="${view === 'waiting'}" data-q="view" data-v="waiting">Waiting on property<span class="q-count">${L.waiting.length}</span></button>
+      <button class="q-tab" role="tab" aria-selected="${view === 'all'}" data-q="view" data-v="all">All requests</button>
+    </div>
+    <div class="q-grid ${r ? 'has-sel' : ''}"><div class="q-list">${listHtml}</div><div class="q-detail">${detail(r)}</div></div>`;
+  if (focusTitle && $('#qTitle')) $('#qTitle').focus();
+}
+function update(r, status, text) { r.status = status; r.log.push({ at: Date.now(), text }); save(); }
+function say(m) { const el = $('#livePolite'); el.textContent = ''; setTimeout(() => { el.textContent = m; }, 40); }
+function toast(m) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; t.setAttribute('aria-hidden', 'true'); document.body.appendChild(t); setTimeout(() => t.remove(), 2600); say(m); }
+
+$('#queueView').addEventListener('click', (e) => {
+  const el = e.target.closest('[data-q]'); if (!el) return;
+  const r = Q.find((x) => x.id === sel);
+  switch (el.dataset.q) {
+    case 'view': view = el.dataset.v; sel = null; panel = null; render(); break;
+    case 'open': sel = el.dataset.id; panel = null; render(true); break;
+    case 'back': sel = null; panel = null; render(); break;
+    case 'panel': panel = el.dataset.p; render(); break;
+    case 'cancel': panel = null; render(); break;
+    case 'assign': { const v = $('#assign').value; if (!v) return; r.code = v; r.log.push({ at: Date.now(), text: `Matched "${r.freeName}" to ${propOf(r).name}` }); save(); panel = 'forward'; render(); break; }
+    case 'markSent': {
+      const m = el.dataset.m; let extra = '';
+      if (m === 'Phone') { const who = $('#spoke').value.trim(), wo = $('#wo').value.trim(); extra = (who ? `, spoke to ${who}` : '') + (wo ? `, work order ${wo}` : ''); }
+      r.sentAt = Date.now(); r.sentMethod = m;
+      update(r, 'Sent to Property', `Sent to property by ${m.toLowerCase()} (${me})${extra}`);
+      panel = 'text:sent:'; render(); toast(`${r.num} marked Sent to Property`); break;
+    }
+    case 'markNeeds': {
+      const i = +($('input[name="miss"]:checked')?.value ?? 2); const m = MISSING[i];
+      update(r, 'Needs Info', `Needs Info: ${m.label.toLowerCase()} (${me})`);
+      panel = 'text:needs:' + (r.lang === 'es' ? m.es : m.en); render(); toast(`${r.num} marked Needs Info`); break;
+    }
+    case 'merge': { const d = dupOf(r); update(r, 'Duplicate', `Merged into ${d.num} (${me})`); d.log.push({ at: Date.now(), text: `${r.num} from ${r.name} merged into this request` }); save(); sel = d.id; panel = null; render(true); toast(`Merged into ${d.num}`); break; }
+    case 'setDate': { const i = +$('#day').value; r.log.push({ at: Date.now(), text: `Property gave a date: ${DAYS.en[i]} (${me})` }); save(); panel = 'text:date:' + (r.lang === 'es' ? DAYS.es[i] : DAYS.en[i]); render(); break; }
+    case 'followSent': r.log.push({ at: Date.now(), text: `Followed up by email (${me})` }); save(); panel = null; render(); toast('Follow-up sent'); break;
+    case 'status': {
+      const s = el.dataset.s;
+      update(r, s, { New: 'Back to triage', Fixed: 'Marked fixed', Closed: 'Closed', 'Sent to Property': 'Not fixed — back to waiting on property' }[s] + ` (${me})`);
+      if (s === 'Sent to Property') r.sentAt = r.sentAt || Date.now();
+      panel = null; render(); toast(`${r.num}: ${s}`); break;
+    }
+    case 'copy': {
+      const txt = $('#' + el.dataset.src).textContent;
+      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Copied'), () => {
+        const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); toast('Copied'); } catch {} ta.remove();
+      });
+      break;
+    }
+  }
+});
+$('#queueView').addEventListener('change', (e) => { if (e.target.id === 'meSel') { me = e.target.value; render(); } });
+
+/* ── demo view switcher ── */
+function show(v) {
+  const q = v === 'queue';
+  $('#queueView').hidden = !q; $('#formView').hidden = q;
+  $('#tabQueue').setAttribute('aria-selected', String(q)); $('#tabForm').setAttribute('aria-selected', String(!q));
+  try { history.replaceState(null, '', q ? '#queue' : location.pathname + location.search); } catch {}
+  if (q) { Q = ls.get() || Q; render(); } else window.PEI_formRender?.();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.seg [data-view]').forEach((b) => b.addEventListener('click', () => show(b.dataset.view)));
+if (!ls.get()) save();
+if (location.hash === '#queue') show('queue');
+})();
+</script>

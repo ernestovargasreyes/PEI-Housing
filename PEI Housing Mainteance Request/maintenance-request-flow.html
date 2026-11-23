@@ -1,0 +1,368 @@
+<title>Plateau Maintenance Requests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  --ground:#EFF2F1; --surface:#FFFFFF; --surface-2:#F6F8F7; --panel:#FBFCFC;
+  --ink:#121E22; --ink-2:#4B5E63; --ink-3:#73878B;
+  --line:#D3DCDA; --line-2:#E3EAE8;
+  --accent:#0E6B70; --accent-soft:#DCEAEA; --accent-ink:#0A5156;
+  --ok:#2F7A58; --warn:#8F6305; --crit:#AE3B2A;
+  --crit-soft:#F5E2DE; --warn-soft:#F4EBD6;
+  --sans:"Source Sans 3",ui-sans-serif,system-ui,sans-serif;
+  --display:"Archivo","Source Sans 3",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1A1D; --surface:#152428; --surface-2:#1A2C31; --panel:#132226;
+    --ink:#DFE9E8; --ink-2:#9BAEAF; --ink-3:#7A8E90;
+    --line:#2A3C40; --line-2:#223337;
+    --accent:#57B9BC; --accent-soft:#11373B; --accent-ink:#7FD0D2;
+    --ok:#5CB287; --warn:#D4A32E; --crit:#DE7A68;
+    --crit-soft:#3A2420; --warn-soft:#332A16;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1A1D; --surface:#152428; --surface-2:#1A2C31; --panel:#132226;
+  --ink:#DFE9E8; --ink-2:#9BAEAF; --ink-3:#7A8E90;
+  --line:#2A3C40; --line-2:#223337;
+  --accent:#57B9BC; --accent-soft:#11373B; --accent-ink:#7FD0D2;
+  --ok:#5CB287; --warn:#D4A32E; --crit:#DE7A68;
+  --crit-soft:#3A2420; --warn-soft:#332A16;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--sans); font-size:17px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1140px; margin:0 auto; padding:0 28px 96px}
+
+/* ---------- header ---------- */
+.masthead{padding:64px 0 36px; border-bottom:2px solid var(--ink); margin-bottom:8px}
+.eyebrow{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 18px;
+}
+h1{
+  font-family:var(--display); font-weight:700; font-size:clamp(2.1rem,5.2vw,3.4rem);
+  line-height:1.02; letter-spacing:-.025em; margin:0 0 20px; text-wrap:balance; max-width:16ch;
+}
+.lede{font-size:1.14rem; color:var(--ink-2); max-width:64ch; margin:0}
+.lede strong{color:var(--ink); font-weight:600}
+.meta{
+  display:flex; flex-wrap:wrap; gap:0 34px; margin-top:30px;
+  font-family:var(--mono); font-size:11.5px; color:var(--ink-3);
+  letter-spacing:.04em;
+}
+.meta b{color:var(--ink-2); font-weight:500}
+
+/* ---------- sections ---------- */
+section{padding-top:54px}
+.fignum{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); margin:0 0 8px;
+}
+h2{
+  font-family:var(--display); font-weight:600; font-size:1.62rem; letter-spacing:-.016em;
+  line-height:1.18; margin:0 0 12px; text-wrap:balance; max-width:24ch;
+}
+.note{max-width:68ch; color:var(--ink-2); margin:0 0 24px}
+.note code{
+  font-family:var(--mono); font-size:.86em; background:var(--surface-2);
+  border:1px solid var(--line-2); border-radius:3px; padding:1px 5px; color:var(--ink);
+}
+.note strong{color:var(--ink); font-weight:600}
+
+/* ---------- figures ---------- */
+figure{margin:0}
+.panel{
+  background:var(--panel); border:1px solid var(--line); border-radius:6px;
+  padding:26px 24px; overflow-x:auto;
+}
+.panel svg{display:block; width:100%; min-width:720px; max-width:100%; height:auto}
+figcaption{
+  margin-top:14px; font-size:14.5px; color:var(--ink-3); max-width:72ch;
+  border-left:2px solid var(--accent); padding-left:12px;
+}
+
+/* ---------- callout ---------- */
+.callout{
+  margin:26px 0 0; padding:18px 20px; border-radius:5px; max-width:68ch;
+  background:var(--crit-soft); border:1px solid var(--crit);
+}
+.callout p{margin:0; font-size:15.5px; color:var(--ink)}
+.callout .ctitle{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--crit); margin:0 0 7px; font-weight:500;
+}
+
+/* ---------- closing table ---------- */
+.map{width:100%; border-collapse:collapse; margin-top:22px; font-size:15px}
+.map th{
+  text-align:left; font-family:var(--mono); font-weight:500; font-size:10.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3);
+  padding:0 16px 9px 0; border-bottom:1px solid var(--line);
+}
+.map td{padding:11px 16px 11px 0; border-bottom:1px solid var(--line-2); vertical-align:top; color:var(--ink-2)}
+.map td:first-child{font-family:var(--mono); font-size:13px; color:var(--ink); white-space:nowrap}
+.map tr:last-child td{border-bottom:none}
+
+/* ---------- svg primitives ---------- */
+.b     {fill:var(--surface);    stroke:var(--line);  stroke-width:1.4}
+.b2    {fill:var(--surface-2);  stroke:var(--line);  stroke-width:1.4}
+.b-acc {fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+.b-crit{fill:var(--crit-soft);  stroke:var(--crit);  stroke-width:1.6}
+.b-ghost{fill:none; stroke:var(--line); stroke-width:1.4; stroke-dasharray:5 4}
+.b-dash{fill:var(--panel); stroke:var(--ink-3); stroke-width:1.2; stroke-dasharray:4 4}
+
+.ln     {stroke:var(--ink-3); stroke-width:1.5; fill:none}
+.ln-acc {stroke:var(--accent); stroke-width:1.8; fill:none}
+.ln-crit{stroke:var(--crit);   stroke-width:1.8; fill:none}
+.ln-faint{stroke:var(--line); stroke-width:1; fill:none}
+
+.t      {font-family:var(--sans); font-size:11.5px; fill:var(--ink)}
+.t-sm   {font-family:var(--sans); font-size:10.5px; fill:var(--ink-2)}
+.m      {font-family:var(--mono); font-size:10.5px; fill:var(--ink); letter-spacing:.02em}
+.m-sm   {font-family:var(--mono); font-size:9.5px;  fill:var(--ink-3); letter-spacing:.04em}
+.m-lbl  {font-family:var(--mono); font-size:10px;   fill:var(--ink-3); letter-spacing:.1em}
+.m-acc  {font-family:var(--mono); font-size:10px;   fill:var(--accent-ink); letter-spacing:.1em; font-weight:500}
+.m-crit {font-family:var(--mono); font-size:9.5px;  fill:var(--crit); letter-spacing:.04em}
+.m-ok   {font-family:var(--mono); font-size:9.5px;  fill:var(--ok); letter-spacing:.04em}
+.mid{text-anchor:middle} .end{text-anchor:end}
+.cap-name{font-family:var(--mono); font-size:10px; fill:var(--ink-2); letter-spacing:.11em}
+
+.ah      {fill:var(--ink-3)}
+.ah-acc  {fill:var(--accent)}
+.ah-crit {fill:var(--crit)}
+
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap{padding:0 18px 72px}
+  .masthead{padding:44px 0 28px}
+  .panel{padding:18px 14px}
+}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Plateau Excavation · Housing · v1 scope</p>
+  <h1>Stop the calls. Route the request.</h1>
+  <p class="lede">Workers across Georgia, Florida, Alabama and Tennessee report maintenance problems by calling and
+  texting Tonya and Jordan all day. <strong>v1 replaces that one channel</strong> — a QR code or a link, one queue,
+  and a one-click forward to the hotel or apartment that actually does the fixing. Nothing else.</p>
+  <p class="meta">
+    <span><b>1</b> request type — maintenance</span>
+    <span><b>2</b> coordinators</span>
+    <span><b>4</b> statuses</span>
+    <span><b>4</b> states covered</span>
+  </p>
+</header>
+
+<section>
+  <p class="fignum">Fig 1 — The actual problem</p>
+  <h2>The change isn't tracking. It's who gets interrupted.</h2>
+  <p class="note">Plateau doesn't fix anything — the hotel or the apartment office does. Tonya and Jordan are a routing
+  desk. Today every request arrives as an interruption and has to be retyped from a text thread. <strong>v1 doesn't
+  reduce the number of requests; it changes when the coordinators have to deal with them</strong> and makes each one
+  arrive complete enough to forward.</p>
+
+  <figure>
+    <div class="panel">
+      <svg viewBox="0 0 1000 340" role="img" aria-label="Today, workers call and text Tonya and Jordan constantly, who retype details and contact the property. In version one, workers scan a QR code or tap a link, requests collect in one queue reviewed daily, and a one-click forward sends a pre-written message with photos to the property.">
+        <defs>
+          <marker id="f1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker>
+          <marker id="f1c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah-crit"/></marker>
+          <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah-acc"/></marker>
+        </defs>
+
+        <text class="m-lbl" x="24" y="34">TODAY</text>
+        <rect class="b2"    x="24"  y="52" width="130" height="56" rx="4"/>
+        <rect class="b-crit" x="252" y="52" width="160" height="56" rx="4"/>
+        <rect class="b"     x="504" y="52" width="160" height="56" rx="4"/>
+        <rect class="b2"    x="746" y="52" width="150" height="56" rx="4"/>
+        <text class="t mid"    x="89"  y="76">Workers</text>
+        <text class="t-sm mid" x="89"  y="93">GA · FL · AL · TN</text>
+        <text class="t mid"    x="332" y="76">Tonya + Jordan</text>
+        <text class="t-sm mid" x="332" y="93">phones, all day</text>
+        <text class="t mid"    x="584" y="76">Email or call</text>
+        <text class="t-sm mid" x="584" y="93">retyped by hand</text>
+        <text class="t mid"    x="821" y="76">Property</text>
+        <text class="t-sm mid" x="821" y="93">hotel or apartment</text>
+        <path class="ln-crit" d="M154 64 H244" marker-end="url(#f1c)"/>
+        <path class="ln-crit" d="M154 80 H244" marker-end="url(#f1c)"/>
+        <path class="ln-crit" d="M154 96 H244" marker-end="url(#f1c)"/>
+        <text class="m-crit mid" x="199" y="44">calls · texts</text>
+        <path class="ln" d="M412 80 H500" marker-end="url(#f1)"/>
+        <text class="m-sm mid" x="456" y="70">retype</text>
+        <path class="ln" d="M664 80 H742" marker-end="url(#f1)"/>
+        <text class="t-sm" x="24" y="132">Every request is an interruption, and the details live in a text thread.</text>
+
+        <path class="ln-faint" d="M24 160 H976"/>
+
+        <text class="m-lbl" x="24" y="190">V1</text>
+        <rect class="b2"    x="24"  y="208" width="130" height="56" rx="4"/>
+        <rect class="b-acc" x="252" y="208" width="160" height="56" rx="4"/>
+        <rect class="b-acc" x="504" y="208" width="160" height="56" rx="4"/>
+        <rect class="b2"    x="746" y="208" width="150" height="56" rx="4"/>
+        <text class="t mid"    x="89"  y="232">Workers</text>
+        <text class="t-sm mid" x="89"  y="249">GA · FL · AL · TN</text>
+        <text class="t mid"    x="332" y="232">One queue</text>
+        <text class="t-sm mid" x="332" y="249">complete, routable</text>
+        <text class="t mid"    x="584" y="232">One-click forward</text>
+        <text class="t-sm mid" x="584" y="249">pre-written, with photos</text>
+        <text class="t mid"    x="821" y="232">Property</text>
+        <text class="t-sm mid" x="821" y="249">hotel or apartment</text>
+        <path class="ln-acc" d="M154 236 H248" marker-end="url(#f1a)"/>
+        <text class="m-acc mid" x="201" y="200">QR or link</text>
+        <path class="ln-acc" d="M412 236 H500" marker-end="url(#f1a)"/>
+        <text class="m-sm mid" x="456" y="226">daily review</text>
+        <path class="ln-acc" d="M664 236 H742" marker-end="url(#f1a)"/>
+        <text class="t-sm" x="24" y="288">Requests wait in a queue. The coordinators choose when to work them.</text>
+      </svg>
+    </div>
+    <figcaption>Same four parties, same destination. The only thing that moves is the point of interruption — and
+    whether the details arrive typed once by the worker or twice by a coordinator.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <p class="fignum">Fig 2 — "QR code or a link"</p>
+  <h2>Both. It's one form behind two doors.</h2>
+  <p class="note">A QR code is a link a camera can read — they aren't alternatives, and building both is not two builds.
+  The real question is <strong>what the form already knows when it opens</strong>. Start with the plain link: it works
+  for every worker on day one, needs no printing and no hotel's permission. Add QR codes for the busiest hotels once
+  the form has proven itself.</p>
+
+  <figure>
+    <div class="panel">
+      <svg viewBox="0 0 1000 300" role="img" aria-label="A QR code posted in a lobby and a texted link both open the same form, which asks where, who, what, a photo, and access. Selecting an emergency sends the worker to a phone number and refuses to submit. Everything else lands in one queue for Tonya and Jordan.">
+        <defs>
+          <marker id="f2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker>
+          <marker id="f2c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah-crit"/></marker>
+          <marker id="f2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah-acc"/></marker>
+        </defs>
+
+        <rect class="b2" x="24" y="72"  width="160" height="52" rx="4"/>
+        <rect class="b2" x="24" y="156" width="160" height="52" rx="4"/>
+        <text class="t mid"    x="104" y="94">QR in the lobby</text>
+        <text class="t-sm mid" x="104" y="111">property pre-filled</text>
+        <text class="t mid"    x="104" y="178">Link, texted</text>
+        <text class="t-sm mid" x="104" y="195">worker picks property</text>
+        <path class="ln" d="M184 98 H216 V140"/>
+        <path class="ln" d="M184 182 H216 V140"/>
+        <path class="ln" d="M216 140 H252" marker-end="url(#f2)"/>
+
+        <rect class="b-acc" x="256" y="84" width="190" height="112" rx="4"/>
+        <text class="m-acc" x="274" y="108">THE FORM</text>
+        <text class="t"     x="274" y="130">where · who · what</text>
+        <text class="t"     x="274" y="149">photo · access · times</text>
+        <text class="m-sm"  x="274" y="172">under 90 seconds, no login</text>
+
+        <path class="ln-crit" d="M446 116 H510 V72" marker-end="url(#f2c)"/>
+        <text class="m-crit" x="456" y="106">emergency</text>
+        <rect class="b-crit" x="534" y="28" width="210" height="56" rx="4"/>
+        <text class="t mid"    x="639" y="52">CALL THIS NUMBER</text>
+        <text class="t-sm mid" x="639" y="69">the form refuses to submit</text>
+
+        <path class="ln-acc" d="M446 164 H530" marker-end="url(#f2a)"/>
+        <text class="m-sm mid" x="488" y="154">everything else</text>
+        <rect class="b-acc" x="534" y="136" width="210" height="56" rx="4"/>
+        <text class="t mid"    x="639" y="160">ONE QUEUE</text>
+        <text class="t-sm mid" x="639" y="177">status: new</text>
+
+        <path class="ln-acc" d="M744 164 H800" marker-end="url(#f2a)"/>
+        <rect class="b2" x="804" y="136" width="160" height="56" rx="4"/>
+        <text class="t mid"    x="884" y="160">Tonya + Jordan</text>
+        <text class="t-sm mid" x="884" y="177">review daily</text>
+
+        <text class="t-sm" x="24" y="258">A QR code per room is not viable — hotels won't allow stickers and crews change rooms constantly.</text>
+        <text class="t-sm" x="24" y="276">Per property, posted in a crew area, is the version that survives contact with a hotel.</text>
+      </svg>
+    </div>
+    <figcaption>The emergency branch is the one path that deliberately leaves the system. A worker with a gas leak must
+    never be sitting in a web form.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <p class="fignum">Fig 3 — The queue</p>
+  <h2>Four statuses, not eleven</h2>
+  <p class="note">v1 has no task engine, no dependencies, no SLA clock. A request is submitted, forwarded to the right
+  property, confirmed fixed, and closed. <strong>Add structure when there's data to justify it</strong> — not before.</p>
+
+  <figure>
+    <div class="panel">
+      <svg viewBox="0 0 1000 250" role="img" aria-label="A request moves from new to sent when forwarded to the property, to fixed when confirmed, to closed. From new it can also branch to needs info or duplicate.">
+        <defs>
+          <marker id="f3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker>
+        </defs>
+        <rect class="b-acc" x="60"  y="60" width="150" height="56" rx="4"/>
+        <rect class="b"     x="280" y="60" width="150" height="56" rx="4"/>
+        <rect class="b"     x="500" y="60" width="150" height="56" rx="4"/>
+        <rect class="b"     x="720" y="60" width="150" height="56" rx="4"/>
+        <text class="m mid"    x="135" y="84">new</text>
+        <text class="t-sm mid" x="135" y="101">submitted</text>
+        <text class="m mid"    x="355" y="84">sent</text>
+        <text class="t-sm mid" x="355" y="101">forwarded to property</text>
+        <text class="m mid"    x="575" y="84">fixed</text>
+        <text class="t-sm mid" x="575" y="101">property confirms</text>
+        <text class="m mid"    x="795" y="84">closed</text>
+        <text class="t-sm mid" x="795" y="101">verified, done</text>
+        <path class="ln" d="M210 88 H276" marker-end="url(#f3)"/>
+        <path class="ln" d="M430 88 H496" marker-end="url(#f3)"/>
+        <path class="ln" d="M650 88 H716" marker-end="url(#f3)"/>
+        <text class="m-sm mid" x="243" y="50">one click</text>
+        <text class="m-sm mid" x="463" y="50">follow up</text>
+        <text class="m-sm mid" x="683" y="50">confirm</text>
+
+        <rect class="b2" x="280" y="164" width="150" height="48" rx="4"/>
+        <rect class="b2" x="500" y="164" width="150" height="48" rx="4"/>
+        <text class="m mid"    x="355" y="186">needs_info</text>
+        <text class="t-sm mid" x="355" y="202">ask the worker</text>
+        <text class="m mid"    x="575" y="186">duplicate</text>
+        <text class="t-sm mid" x="575" y="202">merged into original</text>
+        <path class="ln" d="M135 116 V188 H276" marker-end="url(#f3)"/>
+        <path class="ln" d="M160 116 V208 H496 V212" marker-end="url(#f3)"/>
+      </svg>
+    </div>
+    <figcaption>Duplicate collapse matters more than it looks: four workers in one hotel report the same broken ice
+    machine, and merging them in one click is most of what "soooooo many requests" feels like.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <p class="fignum">Scope</p>
+  <h2>What's in v1, and what's parked</h2>
+  <p class="note">Everything in the right column is already designed in docs <code>00</code>–<code>05</code> and can be
+  pulled forward the moment someone asks. <strong>Nobody has asked.</strong></p>
+  <table class="map">
+    <thead><tr><th>In v1</th><th>Parked</th><th>Pull forward when</th></tr></thead>
+    <tbody>
+      <tr><td>Maintenance requests</td><td>Leases, turnovers, move-in/out, housing requests</td><td>Tonya says "now the other things"</td></tr>
+      <tr><td>Property + contact list</td><td>Units, assets, preventive maintenance</td><td>Repeat failures need tracking</td></tr>
+      <tr><td>4 statuses</td><td>Task engine, dependencies, evidence gates</td><td>A request needs more than one person</td></tr>
+      <tr><td>Daily review</td><td>SLA clocks, escalation ladder</td><td>There's data to set a target from</td></tr>
+      <tr><td>One-click forward</td><td>Cost tracking, approvals, finance export</td><td>Someone asks what housing costs per job</td></tr>
+      <tr><td>Duplicate collapse</td><td>Dashboards, reporting</td><td>The queue is trusted and full</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p class="ctitle">Before building — Matt has the detail</p>
+    <p>Tonya pointed to Matt for the specifics you discussed. The critical path is the <strong>property and
+    maintenance-contact list</strong>: how many hotels and apartments, in which states, and for each one whether a
+    request goes in by email, phone, or their own portal. Nothing routes without it, and it's the one thing nobody
+    but Plateau can supply.</p>
+  </div>
+</section>
+
+</div>
