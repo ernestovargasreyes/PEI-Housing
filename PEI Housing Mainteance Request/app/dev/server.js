@@ -21,7 +21,7 @@ const SWA = JSON.parse(fs.readFileSync(path.join(WEB, 'staticwebapp.config.json'
 const SEC_HEADERS = SWA.globalHeaders || {};
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 
-function createServer({ dataDir = path.join(__dirname, '..', '.data'), properties = require('../api/src/lib/properties.sample.json'), config = null } = {}) {
+function createServer({ dataDir = path.join(__dirname, '..', '.data'), properties = require('../api/src/lib/properties.sample.json'), config = null, dryRunKey = process.env.PEI_DRYRUN_KEY || 'local-dry-run-key' } = {}) {
   const store = createMemoryStore({ properties, dir: dataDir });
   const handlers = createHandlers(store, { log: (lvl, msg, err) => console.error(msg, err && err.message) });
   const ctl = { failNext: 0, propertiesDown: false };   // test hooks
@@ -43,6 +43,9 @@ function createServer({ dataDir = path.join(__dirname, '..', '.data'), propertie
     try {
       if (url.pathname.startsWith('/api/')) {
         if (ctl.failNext > 0 && req.method === 'POST' && url.pathname === '/api/requests') { ctl.failNext--; return send(res, 503, { error: 'unavailable' }); }
+        if (url.pathname === '/api/dryrun/requests' && req.method === 'GET') {
+          const r = await handlers.dryRunList({ key: url.searchParams.get('key') || '', expected: dryRunKey }); return send(res, r.status, r.json);
+        }
         if (url.pathname === '/api/properties' && req.method === 'GET') {
           if (ctl.propertiesDown) return send(res, 503, { error: 'unavailable' });
           const r = await handlers.getProperties(); return send(res, r.status, r.json, r.headers);

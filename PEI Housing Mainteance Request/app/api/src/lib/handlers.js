@@ -164,7 +164,18 @@ function createHandlers(store, opts = {}) {
     }
   }
 
-  return { getProperties, postRequest, postPhoto, deletePhoto };
+  /* Dry run only (memory store): the requests received so far, newest first. Needs a key of at
+     least 16 characters, compared in constant time; anything else gets a plain 404. */
+  async function dryRunList({ key, expected }) {
+    const crypto = require('crypto');
+    const a = Buffer.from(String(key || '')), b = Buffer.from(String(expected || ''));
+    const ok = b.length >= 16 && a.length === b.length && crypto.timingSafeEqual(a, b);
+    if (!ok || typeof store.listRequests !== 'function') return { status: 404, json: { error: 'not_found' } };
+    const rows = await store.listRequests();
+    return { status: 200, json: rows.slice().reverse() };
+  }
+
+  return { getProperties, postRequest, postPhoto, deletePhoto, dryRunList };
 }
 
 module.exports = { createHandlers, sniffImage, requestNumber, MAX_PHOTO_BYTES };
