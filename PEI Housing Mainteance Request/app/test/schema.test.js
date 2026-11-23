@@ -7,7 +7,7 @@ const { makeStrings, matchWords } = require('../web/i18n.js');
 const known = new Set(['test-vld']);
 const good = (o = {}) => ({
   clientId: '3b241101-e2bb-4255-8caf-4136c566a962', deviceId: '9a7b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d', lang: 'en',
-  code: 'test-vld', apt: '104', name: 'Marcus Bell', cell: '(229) 555-0188', site: '',
+  code: 'test-vld', apt: '104', name: 'Marcus Bell', cell: '(229) 555-0188', site: 'I-85 widening', supervisor: '',
   cat: 3, where: 2, desc: 'AC blows warm air.', long: 0, worse: 0, entry: 0, times: [], pets: 0, notes: '',
   ...o,
 });
@@ -22,7 +22,7 @@ test('a complete request passes and is normalised', () => {
 test('each required answer is reported when missing', () => {
   const r = S.validateRequest({ clientId: 'nope' }, known);
   assert.equal(r.ok, false);
-  for (const f of ['clientId', 'deviceId', 'code', 'apt', 'name', 'cell', 'cat', 'where', 'desc', 'long', 'worse', 'entry', 'pets']) {
+  for (const f of ['clientId', 'deviceId', 'code', 'apt', 'name', 'cell', 'site', 'cat', 'where', 'desc', 'long', 'worse', 'entry', 'pets']) {
     assert.ok(r.fields.includes(f), `expected ${f} in ${r.fields}`);
   }
 });
@@ -84,7 +84,7 @@ test('request numbers come from the list item ID', () => {
 });
 
 test('form option lists line up with the server in both languages', () => {
-  const T = makeStrings('(229) 555-0100', '(229) 555-0101');
+  const T = makeStrings('(229) 555-0101');
   assert.deepEqual(T.en.cats, S.CATEGORIES.map((c) => c[0]));
   assert.deepEqual(T.en.wheres, S.WHERES);
   assert.deepEqual(T.en.longs, S.LONGS);
@@ -104,4 +104,35 @@ test('emergency words match in either language and keep the longest phrase', () 
   assert.deepEqual(matchWords('Huele a gas cerca de la estufa'), ['huele a gas']);
   assert.deepEqual(matchWords('the gasket is loose'), []);
   assert.deepEqual(matchWords('No water since this morning!'), ['no water']);
+});
+
+test('job site is required and supervisor is optional (Matt, 2026-11-23)', () => {
+  assert.deepEqual(S.validateRequest(good({ site: '  ' }), known).fields, ['site']);
+  const r = S.validateRequest(good({ supervisor: 'Dale Hughes' }), known);
+  const f = S.toListFields(r.value);
+  assert.equal(f.JobSite, 'I-85 widening');
+  assert.equal(f.Supervisor, 'Dale Hughes');
+  assert.equal(S.toListFields(S.validateRequest(good(), known).value).Supervisor, '');
+  assert.deepEqual(S.validateRequest(good({ supervisor: 'x'.repeat(81) }), known).fields, ['supervisor']);
+});
+
+test('Virginia and Indiana are on the state list', () => {
+  assert.deepEqual(S.STATES, ['GA', 'FL', 'AL', 'TN', 'VA', 'IN']);
+});
+
+test('after-hours numbers are tidied for display, or dropped if not 10 digits', () => {
+  assert.equal(S.formatPhone('334.555.0177'), '(334) 555-0177');
+  assert.equal(S.formatPhone('+1 334 555 0177'), '(334) 555-0177');
+  assert.equal(S.formatPhone('front desk'), '');
+  assert.equal(S.formatPhone(undefined), '');
+});
+
+test('the emergency screen strings name the leasing office, not a Plateau 24-hour line', () => {
+  const T = makeStrings('(229) 555-0101');
+  for (const lang of ['en', 'es']) {
+    const all = JSON.stringify(Object.values(T[lang]).map((v) => (typeof v === 'function' ? v('X') : v)));
+    assert.doesNotMatch(all, /24 hours|24 horas/);
+  }
+  assert.equal(T.en.k3('(334) 555-0177'), 'Call (334) 555-0177');
+  assert.equal(T.en.c8(''), "Call your leasing office's emergency line.");
 });

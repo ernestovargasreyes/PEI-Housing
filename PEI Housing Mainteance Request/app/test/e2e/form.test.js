@@ -12,7 +12,7 @@ const assert = require('node:assert/strict');
 const { chromium, devices } = require('playwright');
 const { createServer } = require('../../dev/server');
 
-const CONFIG = { emergencyNumber: '(229) 555-0100', housingNumber: '(229) 555-0101', testMode: true, holidays: [] };
+const CONFIG = { housingNumber: '(229) 555-0101', testMode: true, holidays: [] };
 let browser, srv, base;
 
 test.before(async () => {
@@ -55,6 +55,7 @@ async function fillToAccess(page, { qr = false, entry = 'Yes', photo = false, st
   await tap(page, 'Next');
   await page.getByLabel('Your name').fill('Marcus Bell');
   await page.getByLabel('Your cell number').fill('229-555-0188');
+  await page.getByLabel('What job site are you on?').fill('I-85 widening');
   await tap(page, 'Next');
   await page.getByLabel('Type of problem').selectOption({ label: 'Heating or air conditioning' });
   await pill(page, 'Where in your apartment?', 'Bedroom');
@@ -114,11 +115,13 @@ test('card 3: the Spanish form from start to finish', async () => {
   assert.equal(await page.locator('html').getAttribute('lang'), 'es');
   await tap(page, 'Nada de esto — reportar un problema');
   await page.getByRole('button', { name: /Apartamentos/ }).click();
-  await page.getByRole('button', { name: /Test Apartments/ }).click();
+  await page.getByRole('button', { name: /Test Apartments – Valdosta/ }).click();
   await page.getByLabel('Número de apartamento').fill('102');
   await tap(page, 'Siguiente');
   await page.getByLabel('Su nombre').fill('José Hernández');
   await page.getByLabel('Su número de celular').fill('2295550134');
+  await page.getByLabel('¿En qué obra está trabajando?').fill('Puente de la 231');
+  await page.getByLabel('Su supervisor o capataz').fill('Dale Hughes');
   await tap(page, 'Siguiente');
   await page.getByLabel('Tipo de problema').selectOption({ label: 'Refrigerador, estufa, lavadora o secadora' });
   await pill(page, '¿En qué parte de su apartamento?', 'Cocina');
@@ -135,20 +138,75 @@ test('card 3: the Spanish form from start to finish', async () => {
   assert.equal(row.fields.FormLanguage, 'Spanish');
   assert.equal(row.fields.ProblemType, 'Fridge, stove, washer, or dryer');
   assert.equal(row.fields.ProblemDescription, 'El refrigerador no enfría.');
+  assert.equal(row.fields.JobSite, 'Puente de la 231');
+  assert.equal(row.fields.Supervisor, 'Dale Hughes');
   assert.deepEqual(page.errors, []);
   await ctx.close();
 });
 
-test('card 5: an emergency stops the form and shows the number to call', async () => {
+test('card 5: an emergency stops the form; the worker finds their leasing office\'s number', async () => {
   const { ctx, page } = await phone();
   await page.goto(base);
   await tap(page, 'No water');
-  await page.getByRole('heading', { name: "Call us now — don't use this form" }).waitFor();
-  const call = page.getByRole('link', { name: /Call \(229\) 555-0100/ });
-  assert.equal(await call.getAttribute('href'), 'tel:+12295550100');
+  await page.getByRole('heading', { name: "Call your leasing office now — don't use this form" }).waitFor();
+  await page.getByText("Call your leasing office's emergency line.").waitFor();
+  const housing = page.getByRole('link', { name: '(229) 555-0101 (TEST – do not call)' });
+  assert.equal(await housing.getAttribute('href'), 'tel:+12295550101');
+  await tap(page, "Choose where you're staying to see the number");
+  await page.getByRole('button', { name: /Test Apartments – Valdosta/ }).click();
+  await page.getByText('Emergency line for Test Apartments – Valdosta:').waitFor();
+  const call = page.getByRole('link', { name: 'Call (229) 555-0143 (TEST – do not call)' });
+  assert.equal(await call.getAttribute('href'), 'tel:+12295550143');
   assert.equal(await page.getByRole('button', { name: 'Next' }).count(), 0, 'no way forward into the form');
   await tap(page, 'Not an emergency — go back');
   await page.getByRole('heading', { name: 'First — is this an emergency?' }).waitFor();
+  await ctx.close();
+});
+
+test('from a QR code, the emergency screen shows that property\'s number at once', async () => {
+  const { ctx, page } = await phone();
+  await page.goto(base + '/?p=test-mgm');
+  await tap(page, 'I smell gas');
+  const call = page.getByRole('link', { name: 'Call (334) 555-0177 (TEST – do not call)' });
+  assert.equal(await call.getAttribute('href'), 'tel:+13345550177');
+  await page.getByText('If you smell gas, leave the apartment first, then call.').waitFor();
+  await ctx.close();
+});
+
+test('a property with no after-hours number still points the worker somewhere', async () => {
+  const { ctx, page } = await phone();
+  await page.goto(base + '/?p=oak-tlh');
+  await tap(page, 'No electricity');
+  await page.getByText("Call your leasing office's emergency line.").waitFor();
+  await page.getByRole('link', { name: '(229) 555-0101 (TEST – do not call)' }).waitFor();
+  assert.equal(await page.getByRole('button', { name: "Choose where you're staying to see the number" }).count(), 0);
+  await ctx.close();
+});
+
+test('job site is required on "Who should they contact?"', async () => {
+  const { ctx, page } = await phone();
+  await page.goto(base);
+  await tap(page, 'None of these — report a problem');
+  await page.getByRole('button', { name: /Apartments/ }).click();
+  await page.getByRole('button', { name: /Test Apartments – Valdosta/ }).click();
+  await page.getByLabel('Apartment number').fill('104');
+  await tap(page, 'Next');
+  await page.getByLabel('Your name').fill('Marcus Bell');
+  await page.getByLabel('Your cell number').fill('2295550188');
+  await tap(page, 'Next');
+  await page.getByText('Enter your job site.').waitFor();
+  await page.getByText('(optional)').waitFor();
+  await ctx.close();
+});
+
+test('Virginia and Indiana appear in the property list', async () => {
+  const { ctx, page } = await phone();
+  await page.goto(base);
+  await tap(page, 'None of these — report a problem');
+  await page.getByRole('button', { name: /Apartments/ }).click();
+  await page.getByText('Virginia', { exact: true }).waitFor();
+  await page.getByText('Indiana', { exact: true }).waitFor();
+  await page.getByRole('button', { name: /Maple Court Apartments/ }).waitFor();
   await ctx.close();
 });
 
@@ -157,11 +215,12 @@ test('emergency words in the description bring back the call screen', async () =
   await page.goto(base);
   await tap(page, 'None of these — report a problem');
   await page.getByRole('button', { name: /Apartments/ }).click();
-  await page.getByRole('button', { name: /Test Apartments/ }).click();
+  await page.getByRole('button', { name: /Test Apartments – Valdosta/ }).click();
   await page.getByLabel('Apartment number').fill('106');
   await tap(page, 'Next');
   await page.getByLabel('Your name').fill('Ray Simmons');
   await page.getByLabel('Your cell number').fill('3345550163');
+  await page.getByLabel('What job site are you on?').fill('Hwy 231 bridge');
   await tap(page, 'Next');
   await page.getByLabel('Type of problem').selectOption({ label: 'Fridge, stove, washer, or dryer' });
   await pill(page, 'Where in your apartment?', 'Kitchen');
@@ -171,6 +230,7 @@ test('emergency words in the description bring back the call screen', async () =
   await tap(page, 'Next');
   await page.getByRole('heading', { name: 'This might be an emergency' }).waitFor();
   await page.getByText('You wrote "smell gas"').waitFor();
+  await page.getByRole('link', { name: 'Call (229) 555-0143 (TEST – do not call)' }).waitFor();
   await tap(page, "It's not an emergency — continue");
   await page.getByRole('heading', { name: 'Getting in' }).waitFor();
   await pill(page, "Can maintenance come in if you're not there?", 'Yes');
@@ -275,7 +335,7 @@ test('when the property list will not load, the worker types the place', async (
 });
 
 test('the form shows "Not ready" while the numbers are placeholders', async () => {
-  const s2 = createServer({ dataDir: null, config: { emergencyNumber: '(XXX) XXX-XXXX', housingNumber: '(XXX) XXX-XXXX', testMode: false } });
+  const s2 = createServer({ dataDir: null, config: { housingNumber: '(XXX) XXX-XXXX', testMode: false } });
   await new Promise((r) => s2.server.listen(0, r));
   const { ctx, page } = await phone();
   await page.goto(`http://localhost:${s2.server.address().port}`);

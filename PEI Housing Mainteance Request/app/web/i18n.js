@@ -6,7 +6,9 @@
  */
 (function (root) {
   'use strict';
-  function makeStrings(NUM, HOUSING) {
+  /* HOUSING is the Plateau housing number. Emergency numbers belong to each property
+     (the property handles emergencies), so they are passed in where they are shown. */
+  function makeStrings(HOUSING) {
     return {
       en: {
         appTitle: 'Maintenance request', lang: 'Español', langOther: 'es', langAnnounce: 'Form in English',
@@ -28,8 +30,10 @@
         e1: 'First — is this an emergency?', e2: 'Tap anything that\'s happening right now.',
         conds: ['No heat or AC at all', 'No water', 'Water leaking or flooding right now', 'I smell gas', 'Smoke or fire', 'No electricity', 'I\'m locked out', 'Someone broke in, or a door or window won\'t lock'],
         none: 'None of these — report a problem',
-        k1: 'Call us now — don\'t use this form', k2: 'You tapped:', k3: `Call ${NUM}`,
-        k4: 'Someone answers 24 hours a day. This form is only checked during the day, so an emergency sent here could wait all night.',
+        k1: 'Call your leasing office now — don\'t use this form', k2: 'You tapped:', k3: (n) => `Call ${n}`,
+        k2b: (p) => `Emergency line for ${p}:`, k3none: 'Call your leasing office\'s emergency line.', kPick: 'Choose where you\'re staying to see the number',
+        k4: 'Your leasing office handles emergencies, day or night. This form is only checked during the day, so an emergency sent here could wait all night.',
+        kHousing: 'Can\'t reach them? Call Plateau housing:',
         k5: 'If you smell gas, leave the apartment first, then call.', k6: 'Not an emergency — go back',
         w1: 'Where are you staying?', w2: 'Apartments', w3: 'Choose where you\'re staying',
         w4: 'Apartment number', w5: 'For example 214 or B12', change: 'Change',
@@ -44,6 +48,7 @@
         h1: 'Who should they contact?', h2: 'Your name', h3: 'Your cell number',
         h4: 'So we can reach you, and so maintenance can call before they come in.',
         h5: 'What job site are you on?', h6: 'Enter your name.', h7: 'Enter your cell number.',
+        h9: 'Your supervisor or foreman', h10: 'Enter your job site.',
         h8: (n) => `That's ${n} digits. A cell number has 10.`,
         q1: 'What\'s wrong?', q2: 'Type of problem', q3: 'Pick the closest one',
         cats: ['Water leak, drip, or flooding', 'Toilet, sink, shower, or drain', 'No hot water', 'Heating or air conditioning', 'Lights, outlets, or power', 'Fridge, stove, washer, or dryer', 'Door, lock, key, or garage', 'Bugs, mice, or other pests', 'Internet, cable, or TV', 'Damage to walls, floors, or ceiling', 'Cleaning or trash', 'Yard, grounds, or snow', 'Furniture or household items', 'Something else'],
@@ -58,7 +63,7 @@
         q21: (u) => `${u.toLocaleString('en-US')} of 2,000`, q22: 'Pick the type of problem.', q23: 'Pick one.',
         q24: (n) => `Photo ${n} uploaded`, photoAlt: (n) => `Photo ${n}`, retry: 'Try again', uploading: 'Uploading', failed: 'Not uploaded',
         x1: 'This might be an emergency', x2: (w) => `You wrote "${w}". If that's happening now, call instead of sending this.`,
-        x3: 'Someone answers 24 hours a day.', x4: 'It\'s not an emergency — continue',
+        x3: 'Your leasing office handles emergencies, day or night.', x4: 'It\'s not an emergency — continue',
         a1: 'Getting in', a2: 'Can maintenance come in if you\'re not there?', yesno: ['Yes', 'No'],
         a4: 'When are you usually there?', a4b: 'Check all that work',
         times: ['Weekday mornings', 'Weekday afternoons', 'Evenings', 'Weekends', 'Anytime is fine'],
@@ -69,13 +74,13 @@
         c1: 'Got it. Your request is in.', c2: 'Your request number', c3: 'Take a screenshot to keep it.',
         c4: 'What happens next', c5: (p, d) => `Tonya or Jordan sends this to ${p} on ${d}.`,
         c6: 'You\'ll get a text when it\'s sent, and again when they give a date.',
-        c7: 'If it turns into an emergency', c8: `Call ${NUM}. Someone answers 24 hours a day.`,
+        c7: 'If it turns into an emergency', c8: (n) => (n ? `Call your leasing office's emergency line: ${n}.` : 'Call your leasing office\'s emergency line.'),
         c9: 'Report another problem',
         c10: (n) => n === 1 ? 'Your request is in, but 1 photo didn\'t arrive.' : `Your request is in, but ${n} photos didn't arrive.`,
         c11: 'Send photos again', photosSent: 'Photos sent.',
         copyHead: 'Maintenance request', started: 'Started', worse: 'Getting worse', enter: 'OK to enter', there: 'Usually there', petsL: 'Pets',
         testBanner: 'TEST VERSION — requests go to the trial queue, not to a leasing office.',
-        notReady: 'Not ready for workers: the emergency or housing number is not set.',
+        notReady: 'Not ready for workers: the housing number is not set.',
       },
       es: {
         appTitle: 'Solicitud de mantenimiento', lang: 'English', langOther: 'en', langAnnounce: 'Formulario en español',
@@ -97,8 +102,10 @@
         e1: 'Primero: ¿es una emergencia?', e2: 'Toque lo que esté pasando ahora mismo.',
         conds: ['La calefacción o el aire acondicionado no funcionan para nada', 'No hay agua', 'Hay una fuga de agua o una inundación ahora mismo', 'Huele a gas', 'Hay humo o fuego', 'No hay electricidad', 'Me quedé afuera y no puedo entrar', 'Alguien entró a la fuerza, o una puerta o ventana no cierra con llave'],
         none: 'Nada de esto — reportar un problema',
-        k1: 'Llámenos ahora — no use este formulario', k2: 'Usted tocó:', k3: `Llamar al ${NUM}`,
-        k4: 'Alguien contesta las 24 horas. Este formulario solo se revisa de día, así que una emergencia enviada aquí podría esperar toda la noche.',
+        k1: 'Llame ahora a su oficina de alquiler — no use este formulario', k2: 'Usted tocó:', k3: (n) => `Llamar al ${n}`,
+        k2b: (p) => `Línea de emergencia de ${p}:`, k3none: 'Llame a la línea de emergencia de su oficina de alquiler.', kPick: 'Elija dónde se queda para ver el número',
+        k4: 'Su oficina de alquiler atiende las emergencias, de día o de noche. Este formulario solo se revisa de día, así que una emergencia enviada aquí podría esperar toda la noche.',
+        kHousing: '¿No le contestan? Llame a vivienda de Plateau:',
         k5: 'Si huele a gas, primero salga del apartamento y luego llame.', k6: 'No es una emergencia — regresar',
         w1: '¿Dónde se está quedando?', w2: 'Apartamentos', w3: 'Elija dónde se queda',
         w4: 'Número de apartamento', w5: 'Por ejemplo 214 o B12', change: 'Cambiar',
@@ -113,6 +120,7 @@
         h1: '¿A quién deben contactar?', h2: 'Su nombre', h3: 'Su número de celular',
         h4: 'Para comunicarnos con usted y para que mantenimiento le llame antes de entrar.',
         h5: '¿En qué obra está trabajando?', h6: 'Escriba su nombre.', h7: 'Escriba su número de celular.',
+        h9: 'Su supervisor o capataz', h10: 'Escriba en qué obra trabaja.',
         h8: (n) => `Son ${n} dígitos. Un número de celular tiene 10.`,
         q1: '¿Cuál es el problema?', q2: 'Tipo de problema', q3: 'Elija el más parecido',
         cats: ['Fuga de agua, goteo o inundación', 'Inodoro, lavabo, ducha o desagüe', 'No hay agua caliente', 'Calefacción o aire acondicionado', 'Luces, enchufes o electricidad', 'Refrigerador, estufa, lavadora o secadora', 'Puerta, cerradura, llave o garaje', 'Insectos, ratones u otras plagas', 'Internet, cable o TV', 'Daños en paredes, pisos o techo', 'Limpieza o basura', 'Jardín, áreas exteriores o nieve', 'Muebles o artículos de la casa', 'Otra cosa'],
@@ -127,7 +135,7 @@
         q21: (u) => `${u.toLocaleString('en-US')} de 2,000`, q22: 'Elija el tipo de problema.', q23: 'Elija una opción.',
         q24: (n) => `Foto ${n} subida`, photoAlt: (n) => `Foto ${n}`, retry: 'Intentar de nuevo', uploading: 'Subiendo', failed: 'No se subió',
         x1: 'Esto podría ser una emergencia', x2: (w) => `Usted escribió "${w}". Si eso está pasando ahora, llame en vez de enviar esto.`,
-        x3: 'Alguien contesta las 24 horas.', x4: 'No es una emergencia — continuar',
+        x3: 'Su oficina de alquiler atiende las emergencias, de día o de noche.', x4: 'No es una emergencia — continuar',
         a1: 'Acceso', a2: '¿Puede entrar mantenimiento si usted no está?', yesno: ['Sí', 'No'],
         a4: '¿Cuándo suele estar?', a4b: 'Marque todos los que le sirvan',
         times: ['Mañanas entre semana', 'Tardes entre semana', 'Noches', 'Fines de semana', 'A cualquier hora'],
@@ -138,13 +146,13 @@
         c1: 'Listo. Recibimos su solicitud.', c2: 'Su número de solicitud', c3: 'Tome una captura de pantalla para guardarlo.',
         c4: 'Qué sigue', c5: (p, d) => `Tonya o Jordan se la enviará a ${p} el ${d}.`,
         c6: 'Le mandaremos un mensaje de texto cuando se envíe y otra vez cuando den una fecha.',
-        c7: 'Si se convierte en una emergencia', c8: `Llame al ${NUM}. Alguien contesta las 24 horas.`,
+        c7: 'Si se convierte en una emergencia', c8: (n) => (n ? `Llame a la línea de emergencia de su oficina de alquiler: ${n}.` : 'Llame a la línea de emergencia de su oficina de alquiler.'),
         c9: 'Reportar otro problema',
         c10: (n) => n === 1 ? 'Recibimos su solicitud, pero 1 foto no llegó.' : `Recibimos su solicitud, pero ${n} fotos no llegaron.`,
         c11: 'Enviar las fotos de nuevo', photosSent: 'Fotos enviadas.',
         copyHead: 'Solicitud de mantenimiento', started: 'Empezó', worse: 'Empeorando', enter: 'Pueden entrar', there: 'Suele estar', petsL: 'Mascotas',
         testBanner: 'VERSIÓN DE PRUEBA — las solicitudes van a la lista de prueba, no a una oficina de alquiler.',
-        notReady: 'No está listo para los trabajadores: falta el número de emergencia o de vivienda.',
+        notReady: 'No está listo para los trabajadores: falta el número de vivienda.',
       },
     };
   }

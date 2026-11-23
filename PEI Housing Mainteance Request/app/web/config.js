@@ -1,17 +1,19 @@
 /*
  * Settings Tonya, Jordan or IT change without touching the form's code.
  *
- * BEFORE WORKERS GET THE LINK: set both numbers. While either still holds X's, the form
- * shows a red "Not ready" bar and `npm test` fails. The emergency number is the one
- * placeholder in this project with a safety consequence (spec/risks-and-blockers.md §1).
+ * Emergency numbers are not set here. Each property handles its own emergencies
+ * (Matt, 2026-11-23), so the emergency screen shows the property's After-Hours Phone
+ * from the SharePoint Properties list. Fill that column for every property.
+ *
+ * BEFORE WORKERS GET THE LINK: set the housing number. While it still holds X's, the form
+ * shows a red "Not ready" bar and `npm run check:launch` fails.
  *
  * For the platform trial (trial-platform.md), leave testMode on: every number is shown
  * with "TEST – do not call" and a banner says requests go to the trial queue.
  */
 window.PEI_CONFIG = {
-  // The 24-hour line shown on the emergency screen and the confirmation. Display format.
-  emergencyNumber: '(XXX) XXX-XXXX',
-  // The coordinators' number workers text when the form will not send, or call when rate-limited.
+  // Plateau housing: shown under every emergency number ("Can't reach them?"), and the
+  // number workers text when the form will not send or call when rate-limited. Display format.
   housingNumber: '(XXX) XXX-XXXX',
   // Trial week only. Set to false for the January pilot.
   testMode: true,

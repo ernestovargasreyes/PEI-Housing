@@ -4,8 +4,9 @@
  *
  *   npm run check:launch
  *
- * Fails while the emergency or housing number is a placeholder or test mode is still on.
- * spec/risks-and-blockers.md §1: nothing prints or ships with "(XXX) XXX-XXXX".
+ * Fails while the housing number is a placeholder or test mode is still on.
+ * Emergency numbers come from each property's After-Hours Phone in SharePoint; check those
+ * by hand: every active property needs one (app/README.md, before the pilot).
  */
 const fs = require('fs');
 const path = require('path');
@@ -17,7 +18,6 @@ const c = sandbox.window.PEI_CONFIG || {};
 const problems = [];
 const isNumber = (v) => typeof v === 'string' && !/x/i.test(v) && v.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '').length === 10;
 
-if (!isNumber(c.emergencyNumber)) problems.push(`emergencyNumber is not a real number: "${c.emergencyNumber}"`);
 if (!isNumber(c.housingNumber)) problems.push(`housingNumber is not a real number: "${c.housingNumber}"`);
 if (c.testMode) problems.push('testMode is still on: numbers show "TEST – do not call"');
 const today = new Date().toISOString().slice(0, 10);
