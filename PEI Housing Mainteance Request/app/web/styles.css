@@ -177,3 +177,11 @@ a.btn { text-decoration: none; }
 .mt { margin-top: 8px; }
 .m0 { margin: 0; }
 .pad { padding: 16px; }
+/* dry-run.html */
+.shell.wide { max-width: 760px; }
+.dry-rows { display: flex; flex-direction: column; gap: 12px; }
+.dry-h { font-family: var(--display); font-size: 20px; margin: 0; }
+.facts { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 6px 16px; margin: 0; }
+.facts dt { color: var(--ink-2); font-size: 14px; padding-top: 1px; }
+.facts dd { margin: 0; overflow-wrap: anywhere; font-weight: 400; }
+@media (max-width: 480px) { .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; } .facts dd { margin-bottom: 8px; } }

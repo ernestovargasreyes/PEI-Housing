@@ -334,6 +334,22 @@ test('when the property list will not load, the worker types the place', async (
   } finally { srv.ctl.propertiesDown = false; await ctx.close(); }
 });
 
+test('dry-run results page lists what arrived, and only with the key', async () => {
+  const { ctx, page } = await phone();
+  await page.goto(base);
+  await fillToAccess(page);
+  await tap(page, 'Send request');
+  await page.getByRole('heading', { name: 'Got it. Your request is in.' }).waitFor();
+  const num = await page.locator('.bignum').textContent();
+  await page.goto(base + '/dry-run.html?key=local-dry-run-key');
+  await page.getByRole('heading', { name: new RegExp(num) }).waitFor();
+  await page.getByText('I-85 widening').first().waitFor();
+  await page.goto(base + '/dry-run.html?key=wrong-key-wrong-key');
+  await page.getByText('Not available: wrong key').waitFor();
+  assert.deepEqual(page.errors.filter((e) => !/404/.test(e)), []);
+  await ctx.close();
+});
+
 test('the form shows "Not ready" while the numbers are placeholders', async () => {
   const s2 = createServer({ dataDir: null, config: { housingNumber: '(XXX) XXX-XXXX', testMode: false } });
   await new Promise((r) => s2.server.listen(0, r));

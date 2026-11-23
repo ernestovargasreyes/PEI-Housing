@@ -47,6 +47,18 @@ app.http('requests', {
   },
 });
 
+// Dry run only: what arrived, for the person running it. Answers 404 unless the app runs in
+// memory mode with PEI_DRYRUN_KEY set and the request carries that key (app/DRY-RUN.md).
+app.http('dryrun', {
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  route: 'dryrun/requests',
+  handler: async (req, context) => {
+    if (process.env.PEI_STORE !== 'memory') return reply({ status: 404, json: { error: 'not_found' } });
+    return reply(await getHandlers(context).dryRunList({ key: req.query.get('key') || '', expected: process.env.PEI_DRYRUN_KEY || '' }));
+  },
+});
+
 app.http('photos', {
   methods: ['POST', 'DELETE'],
   authLevel: 'anonymous',

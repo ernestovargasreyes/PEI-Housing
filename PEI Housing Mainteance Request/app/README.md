@@ -27,6 +27,7 @@ worker's phone ──▶ web/  (Azure Static Web App: the form)
 | `sharepoint/*.column.json` | Column formatting for Days Since Sent and the Forward button |
 | `dev/server.js` | Runs the whole thing locally with no Azure account |
 | `test/` | Unit tests, browser tests at phone size, and the launch check |
+| `DRY-RUN.md` | **A dry run for Matt:** the form on a free Static Web App in memory mode, a results page instead of SharePoint, and the Montgomery test sign |
 
 ## Try it locally
 

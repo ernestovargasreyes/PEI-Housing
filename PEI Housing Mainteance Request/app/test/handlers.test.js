@@ -138,3 +138,24 @@ test('a store failure returns 503 so the form keeps the answers and retries', as
   const r = await createHandlers(store).postRequest({ body: req(), ip: 'x' });
   assert.equal(r.status, 503);
 });
+
+test('dry-run list: needs the exact key, at least 16 characters; newest first', async () => {
+  const { h } = setup();
+  await h.postRequest({ body: req({ apt: '101' }), ip: 'x' });
+  await h.postRequest({ body: req({ apt: '102' }), ip: 'x' });
+  const key = 'k'.repeat(20);
+  assert.equal((await h.dryRunList({ key: '', expected: key })).status, 404);
+  assert.equal((await h.dryRunList({ key: 'k'.repeat(19), expected: key })).status, 404);
+  assert.equal((await h.dryRunList({ key: 'short', expected: 'short' })).status, 404, 'short keys are refused');
+  assert.equal((await h.dryRunList({ key: '', expected: '' })).status, 404, 'no key set means off');
+  const r = await h.dryRunList({ key, expected: key });
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.json.map((x) => x.Apartment), ['102', '101']);
+});
+
+test('dry-run list is unavailable on a store without it (SharePoint)', async () => {
+  const store = createMemoryStore({ properties: PROPS });
+  delete store.listRequests;
+  const key = 'k'.repeat(20);
+  assert.equal((await createHandlers(store).dryRunList({ key, expected: key })).status, 404);
+});
