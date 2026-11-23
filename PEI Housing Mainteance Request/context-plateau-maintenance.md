@@ -21,7 +21,7 @@ Conditions that change a design decision:
 
 Nothing is built. v1 is one form, reached by a plain link and by property QR codes, that puts each request into one queue. Tonya and Jordan work the queue once a day and forward each request to the property's maintenance contact. A request has one of four working statuses (New, Needs Info, Sent to Property, Fixed) plus Closed and Duplicate. The only automation is a one-click forward: it builds the message from the linked property row and marks the request Sent to Property. [spec/v1-scope.md §5]
 
-The routing data is the Properties & Maintenance Contacts list, kept in Notion until the platform is picked. The platform is picked by the coordinators after a one-week trial of a Freshdesk version and a custom form with a SharePoint queue that Ernest builds and maintains. [trial-platform.md]
+The routing data is the Properties & Maintenance Contacts list: drafted in Notion, and used by the form from its SharePoint copy. The platform is the Plateau form on Microsoft 365, a custom form in Sterling's Azure with a SharePoint queue that Ernest builds and maintains; Freshdesk was dropped on 2026-11-23. A one-week trial checks it is ready for the January pilot. [trial-platform.md; decisions.md]
 
 Maintenance requests only. Leases, turnovers, housing requests, cost tracking, SLA clocks and task templates are out of scope. [spec/v1-scope.md §6]
 
