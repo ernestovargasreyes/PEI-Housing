@@ -1,7 +1,9 @@
 [
-  { "code": "test-vld", "name": "Test Apartments – Valdosta", "city": "Valdosta", "state": "GA" },
-  { "code": "magnolia-vld", "name": "EXAMPLE Magnolia Pointe Apartments", "city": "Valdosta", "state": "GA" },
-  { "code": "oak-tlh", "name": "EXAMPLE Oak Hollow Apartments", "city": "Tallahassee", "state": "FL" },
-  { "code": "cedar-dot", "name": "EXAMPLE Cedar Ridge Apartments", "city": "Dothan", "state": "AL" },
-  { "code": "landing-cha", "name": "EXAMPLE The Landing at Hixson", "city": "Chattanooga", "state": "TN" }
+  { "code": "test-vld", "name": "Test Apartments – Valdosta", "city": "Valdosta", "state": "GA", "afterHoursPhone": "(229) 555-0143" },
+  { "code": "test-mgm", "name": "Test Apartments – Montgomery", "city": "Montgomery", "state": "AL", "afterHoursPhone": "(334) 555-0177" },
+  { "code": "magnolia-vld", "name": "EXAMPLE Magnolia Pointe Apartments", "city": "Valdosta", "state": "GA", "afterHoursPhone": "(229) 555-0150" },
+  { "code": "oak-tlh", "name": "EXAMPLE Oak Hollow Apartments", "city": "Tallahassee", "state": "FL", "afterHoursPhone": "" },
+  { "code": "landing-cha", "name": "EXAMPLE The Landing at Hixson", "city": "Chattanooga", "state": "TN", "afterHoursPhone": "(423) 555-0190" },
+  { "code": "ridge-ric", "name": "EXAMPLE Ridge Park Apartments", "city": "Richmond", "state": "VA", "afterHoursPhone": "(804) 555-0112" },
+  { "code": "maple-ind", "name": "EXAMPLE Maple Court Apartments", "city": "Indianapolis", "state": "IN", "afterHoursPhone": "(317) 555-0166" }
 ]

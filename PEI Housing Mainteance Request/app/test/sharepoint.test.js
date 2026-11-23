@@ -30,14 +30,14 @@ test('refuses to start without its settings', () => {
 
 test('reads the property list, following pages', async () => {
   const g = fakeGraph([
-    ['GET', /lists\/props\/items\?/, () => json(200, { value: [{ id: '1', fields: { Title: 'Test Apartments', Code: ' TEST-VLD ', City: 'Valdosta', State: 'GA', Active: true } }], '@odata.nextLink': 'https://graph.microsoft.com/v1.0/next-page' })],
+    ['GET', /lists\/props\/items\?/, () => json(200, { value: [{ id: '1', fields: { Title: 'Test Apartments', Code: ' TEST-VLD ', City: 'Valdosta', State: 'GA', Active: true, AfterHoursPhone: '229-555-0143' } }], '@odata.nextLink': 'https://graph.microsoft.com/v1.0/next-page' })],
     ['GET', /next-page/, () => json(200, { value: [{ id: '2', fields: { Title: 'Old', Code: 'old', Active: false } }] })],
   ]);
   const s = createSharePointStore(ENV, g.fetchImpl);
   const list = await s.listProperties();
   assert.deepEqual(list, [
-    { itemId: '1', code: 'test-vld', name: 'Test Apartments', city: 'Valdosta', state: 'GA', active: true },
-    { itemId: '2', code: 'old', name: 'Old', city: '', state: '', active: false },
+    { itemId: '1', code: 'test-vld', name: 'Test Apartments', city: 'Valdosta', state: 'GA', afterHoursPhone: '229-555-0143', active: true },
+    { itemId: '2', code: 'old', name: 'Old', city: '', state: '', afterHoursPhone: '', active: false },
   ]);
   assert.equal(g.calls.filter((c) => c.url.includes('login')).length, 1, 'token is cached');
   assert.equal(g.calls[1].headers.Authorization, 'Bearer tok');

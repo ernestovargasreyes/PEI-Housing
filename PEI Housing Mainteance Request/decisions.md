@@ -215,3 +215,20 @@
 - Why: Email is the one method a flow can complete on its own. For a phone or portal property, Forward mails the coordinator who pressed it the details to read out or paste, and leaves the status alone, because nothing has reached the property yet.
 - Rejected: Marking phone and portal requests as sent automatically, because a request marked sent that never reached the property is the failure Days Since Sent exists to catch.
 - Rests on: spec/v1-scope.md §5 (templates); app/sharepoint/forward-flow.md
+
+## 2026-11-23 · The property handles emergencies, so the emergency screen shows that property's after-hours number
+- Decided by: Matt (emergencies go to the property); Ernest (approved the change); Claude, default (how the screen shows it)
+- Why: Matt: no heat or AC, no water, flooding, gas, smoke, power, lockouts and break-ins are handled by the property. A single Plateau 24-hour line was never confirmed and would only relay the call. The number now comes from each property's After-Hours Phone in the Properties list. When the property is known (QR code, or the phone's last request) the call button shows it at once, even with no signal, from the list saved on the phone. When it is not known, one tap on "Choose where you're staying" shows it. Plateau housing's number is shown under it as the fallback. "Someone answers 24 hours a day" is gone, because Plateau cannot promise that for a leasing office.
+- Rejected: Keeping one Plateau emergency number; making the worker pick a property before seeing any number, because the emergency screen must never wait.
+- Rests on: Matt's written answers, 2026-11-23 (Notion, Matt — Requirements Call)
+
+## 2026-11-23 · Job site is required; supervisor is an optional field; employee number is not asked yet
+- Decided by: Matt (job site and supervisor as main data points); Ernest (approved); Claude, default (supervisor optional, employee number held back)
+- Why: Matt wants job site and supervisor for escalations. Supervisor is optional, because a worker who doesn't know who to name should still be able to send. Employee number waits for Matt to confirm workers know it without looking it up; every field a worker can't answer from memory is a reason to text instead.
+- Rejected: Employee number as a required field before that is confirmed.
+- Rests on: Matt's written answers, 2026-11-23; earlier "What the form deliberately does not ask" (Notion project page)
+
+## 2026-11-23 · Virginia and Indiana are on the state list
+- Decided by: Matt
+- Why: Plateau also houses crews in Virginia and Indiana. The pilot itself runs in one state, at Montgomery, AL.
+- Rests on: Matt's written answers, 2026-11-23

@@ -87,11 +87,15 @@ Placeholders in braces come from the request or the property list. **Data** mark
 | E9 | Condition | I'm locked out | Me quedé afuera y no puedo entrar | |
 | E10 | Condition | Someone broke in, or a door or window won't lock | Alguien entró a la fuerza, o una puerta o ventana no cierra con llave | Wraps |
 | E11 | Button | None of these — report a problem | Nada de esto — reportar un problema | Wraps |
-| K1 | Call screen title | Call us now — don't use this form | Llámenos ahora — no use este formulario | |
+| K1 | Call screen title | Call your leasing office now — don't use this form | Llame ahora a su oficina de alquiler — no use este formulario | Changed 2026-11-23: the property handles emergencies |
 | K2 | What was tapped | You tapped: {condition} | Usted tocó: {condition} | Data |
-| K3 | Call button | Call {emergency_number} | Llamar al {emergency_number} | Data |
-| K4 | Reason | Someone answers 24 hours a day. This form is only checked during the day, so an emergency sent here could wait all night. | Alguien contesta las 24 horas. Este formulario solo se revisa de día, así que una emergencia enviada aquí podría esperar toda la noche. | Wraps |
-| K5 | Safety line, gas only | If you smell gas, leave the apartment first, then call. | Si huele a gas, primero salga del apartamento y luego llame. | |
+| K3 | Call button | Call {emergency_number} | Llamar al {emergency_number} | Data; {emergency_number} is the property's After-Hours Phone |
+| K3a | Above K3 | Emergency line for {property}: | Línea de emergencia de {property}: | Data |
+| K3b | No property chosen yet, or no After-Hours Phone on file | Call your leasing office's emergency line. | Llame a la línea de emergencia de su oficina de alquiler. | |
+| K3c | Button under K3b, when no property is chosen | Choose where you're staying to see the number | Elija dónde se queda para ver el número | Wraps; opens the property list |
+| K3d | Under K3 or K3b | Can't reach them? Call Plateau housing: {housing_number} | ¿No le contestan? Llame a vivienda de Plateau: {housing_number} | Data; the number is a link |
+| K4 | Reason | Your leasing office handles emergencies, day or night. This form is only checked during the day, so an emergency sent here could wait all night. | Su oficina de alquiler atiende las emergencias, de día o de noche. Este formulario solo se revisa de día, así que una emergencia enviada aquí podría esperar toda la noche. | Wraps |
+| K5 | Safety line, gas only | If you smell gas, leave the apartment first, then call. | Si huele a gas, primero salga del apartamento y luego llame. | Shown above the call button |
 | K6 | Link | Not an emergency — go back | No es una emergencia — regresar | |
 
 ### 2. Where are you
@@ -129,7 +133,9 @@ Placeholders in braces come from the request or the property list. **Data** mark
 | H2 | Name label | Your name | Su nombre | |
 | H3 | Cell label | Your cell number | Su número de celular | |
 | H4 | Cell hint | So we can reach you, and so maintenance can call before they come in. | Para comunicarnos con usted y para que mantenimiento le llame antes de entrar. | Wraps |
-| H5 | Job site label | What job site are you on? (optional) | ¿En qué obra está trabajando? (opcional) | |
+| H5 | Job site label | What job site are you on? | ¿En qué obra está trabajando? | Required since 2026-11-23 |
+| H9 | Supervisor label | Your supervisor or foreman (optional) | Su supervisor o capataz (opcional) | Added 2026-11-23 |
+| H10 | Error: no job site | Enter your job site. | Escriba en qué obra trabaja. | |
 | H6 | Error: no name | Enter your name. | Escriba su nombre. | |
 | H7 | Error: no cell | Enter your cell number. | Escriba su número de celular. | |
 | H8 | Error: wrong length | That's {count} digits. A cell number has 10. | Son {count} dígitos. Un número de celular tiene 10. | Data |
@@ -164,7 +170,7 @@ Placeholders in braces come from the request or the property list. **Data** mark
 | Q24 | Announced when a photo finishes uploading | Photo {n} uploaded | Foto {n} subida | Data |
 | X1 | Possible emergency title | This might be an emergency | Esto podría ser una emergencia | |
 | X2 | Possible emergency body | You wrote "{matched_words}". If that's happening now, call instead of sending this. | Usted escribió "{matched_words}". Si eso está pasando ahora, llame en vez de enviar esto. | Data; Wraps |
-| X3 | Under the call button (K3) | Someone answers 24 hours a day. | Alguien contesta las 24 horas. | |
+| X3 | Above the call button (K3) | Your leasing office handles emergencies, day or night. | Su oficina de alquiler atiende las emergencias, de día o de noche. | |
 | X4 | Continue button | It's not an emergency — continue | No es una emergencia — continuar | Wraps |
 
 ### 5. Getting in and sending
@@ -198,7 +204,7 @@ Placeholders in braces come from the request or the property list. **Data** mark
 | C5 | Next steps | Tonya or Jordan sends this to {property} on {review_day}. | Tonya o Jordan se la enviará a {property} el {review_day}. | Data; day as "Monday" / "lunes" |
 | C6 | Next steps | You'll get a text when it's sent, and again when they give a date. | Le mandaremos un mensaje de texto cuando se envíe y otra vez cuando den una fecha. | Wraps |
 | C7 | Emergency callout title | If it turns into an emergency | Si se convierte en una emergencia | |
-| C8 | Emergency callout text | Call {emergency_number}. Someone answers 24 hours a day. | Llame al {emergency_number}. Alguien contesta las 24 horas. | Data |
+| C8 | Emergency callout text | Call your leasing office's emergency line: {emergency_number}. | Llame a la línea de emergencia de su oficina de alquiler: {emergency_number}. | Data; without a number: "Call your leasing office's emergency line." |
 | C9 | Button | Report another problem | Reportar otro problema | |
 | C10 | Sent without some photos | Your request is in, but 1 photo didn't arrive. / Your request is in, but {count} photos didn't arrive. | Recibimos su solicitud, pero 1 foto no llegó. / Recibimos su solicitud, pero {count} fotos no llegaron. | Data; plural |
 | C11 | Button under C10 | Send photos again | Enviar las fotos de nuevo | |

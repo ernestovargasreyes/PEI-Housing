@@ -12,14 +12,13 @@
 
 const CFG = window.PEI_CONFIG || {};
 const PLACEHOLDER = /X/i;
-const notReady = !CFG.emergencyNumber || !CFG.housingNumber || PLACEHOLDER.test(CFG.emergencyNumber) || PLACEHOLDER.test(CFG.housingNumber);
+const notReady = !CFG.housingNumber || PLACEHOLDER.test(CFG.housingNumber);
 const testTag = CFG.testMode ? ' (TEST – do not call)' : '';
-const NUM = (CFG.emergencyNumber || '') + testTag;
 const HOUSING = (CFG.housingNumber || '') + testTag;
 const telHref = (n) => { let d = String(n).replace(/\D/g, ''); if (d.length === 10) d = '1' + d; return 'tel:+' + d; };
-const T = window.PEI_I18N.makeStrings(NUM, HOUSING);
+const T = window.PEI_I18N.makeStrings(HOUSING);
 const matchWords = window.PEI_I18N.matchWords;
-const STATES = { GA: 'Georgia', FL: 'Florida', AL: 'Alabama', TN: 'Tennessee' };
+const STATES = { GA: 'Georgia', FL: 'Florida', AL: 'Alabama', TN: 'Tennessee', VA: 'Virginia', IN: 'Indiana' };
 const HOUR = 3600e3, DAY = 24 * HOUR;
 const SEND_TIMEOUT = 30e3, SLOW_AFTER = 10e3, PHOTO_WAIT = 30e3, MAX_PHOTOS = 5, PER_HOUR = 5;
 
@@ -32,7 +31,7 @@ const store = {
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)));
 const deviceId = store.get('device') || (() => { const id = uuid(); store.set('device', id); return id; })();
 
-const blank = () => ({ code: '', freeName: '', freeCity: '', apt: '', name: '', cell: '', site: '', cat: '', where: '', desc: '', long: '', worse: '', entry: '', times: [], pets: '', petOther: '', notes: '', website: '' });
+const blank = () => ({ code: '', freeName: '', freeCity: '', apt: '', name: '', cell: '', site: '', supervisor: '', cat: '', where: '', desc: '', long: '', worse: '', entry: '', times: [], pets: '', petOther: '', notes: '', website: '' });
 let S = {
   lang: (navigator.language || 'en').toLowerCase().startsWith('es') ? 'es' : 'en',
   screen: 'emergency', d: blank(), clientId: uuid(), photos: [], fromQR: false, qrUnknown: false,
@@ -121,9 +120,19 @@ function input(k, label, attrs = '', hint = '', optional = false) {
     <input class="input" id="f-${k}" data-k="${k}" value="${esc(S.d[k])}" ${attrs} ${e ? 'aria-invalid="true"' : ''} ${desc ? `aria-describedby="${desc}"` : ''}>
     ${errLine(k, e)}${hint ? `<p class="hint" id="${k}-hint">${esc(hint)}</p>` : ''}</div>`;
 }
-/* The call button is a real tel: link with the number in its visible label, so a phone that
-   cannot place calls still shows the number to dial from another phone. */
-const callLink = (label) => `<a class="btn btn-danger" href="${esc(telHref(CFG.emergencyNumber))}">${esc(label)}</a>`;
+/* Emergencies are handled by the property (Matt, 2026-11-23), so the number shown is the
+   after-hours line of the place the worker is staying: known from the QR code, the phone's
+   last request, or by choosing it here. The call button is a real tel: link with the number
+   in its visible label, so a phone that cannot place calls still shows the number to dial. */
+const emergency = () => { const p = prop(S.d.code); return p && p.ah ? { name: p.name, num: p.ah, shown: p.ah + testTag } : null; };
+function callBlock() {
+  const l = L(), e = emergency();
+  const main = e
+    ? `<p>${esc(l.k2b(e.name))}</p><a class="btn btn-danger" id="callLink" href="${esc(telHref(e.num))}">${esc(l.k3(e.shown))}</a>`
+    : `<p><strong>${esc(l.k3none)}</strong></p>${!S.d.code && PROPS.length ? `<button class="btn btn-secondary" id="callPick" data-act="pick">${esc(l.kPick)}</button>` : ''}`;
+  const housing = notReady ? '' : `<p>${esc(l.kHousing)} <a href="${esc(telHref(CFG.housingNumber))}">${esc(HOUSING)}</a></p>`;
+  return main + housing;
+}
 
 const SCREENS = {
   emergency() {
@@ -134,8 +143,9 @@ const SCREENS = {
   call() {
     return `<div class="body"><div class="emerg-head">${ICON.alert}${head(L().k1)}</div>
       <p>${esc(L().k2)} <strong>${esc(L().conds[S.tapped])}</strong></p>
-      ${callLink(L().k3)}
-      <p>${esc(L().k4)}</p>${S.tapped === 3 ? `<p><strong>${esc(L().k5)}</strong></p>` : ''}</div>
+      ${S.tapped === 3 ? `<p><strong>${esc(L().k5)}</strong></p>` : ''}
+      ${callBlock()}
+      <p>${esc(L().k4)}</p></div>
       <div class="foot noline"><button class="linkbtn" data-act="notEmerg">${esc(L().k6)}</button></div>`;
   },
   where() {
@@ -179,7 +189,8 @@ const SCREENS = {
     return `<div class="body">${head(l.h1, 'who')}
       ${input('name', l.h2, 'autocomplete="name" maxlength="80"')}
       ${input('cell', l.h3, 'type="tel" inputmode="tel" autocomplete="tel-national" maxlength="20"', l.h4)}
-      ${input('site', l.h5, 'maxlength="80"', '', true)}</div>
+      ${input('site', l.h5, 'maxlength="80"')}
+      ${input('supervisor', l.h9, 'maxlength="80" autocomplete="off"', '', true)}</div>
       <div class="foot"><button class="btn btn-primary" data-act="next">${esc(l.next)}</button></div>`;
   },
   what() {
@@ -206,7 +217,7 @@ const SCREENS = {
     const l = L();
     return `<div class="body"><div class="emerg-head">${ICON.alert}${head(l.x1)}</div>
       <p>${esc(l.x2(S.matched))}</p>
-      ${callLink(l.k3)}<p>${esc(l.x3)}</p></div>
+      <p>${esc(l.x3)}</p>${callBlock()}</div>
       <div class="foot"><button class="btn btn-secondary" data-act="maybeContinue">${esc(l.x4)}</button></div>`;
   },
   access() {
@@ -232,7 +243,7 @@ const SCREENS = {
       <div><p class="hint">${esc(l.c2)}</p><p class="bignum">${esc(r.num)}</p><p class="hint">${esc(l.c3)}</p></div>
       ${missing ? `<div class="note alert">${ICON.alert}<p>${esc(l.c10(missing))}<br><button class="btn btn-secondary mt" data-act="resendPhotos">${esc(l.c11)}</button></p></div>` : ''}
       <div class="card"><strong>${esc(l.c4)}</strong><p class="m0">${esc(l.c5(r.prop, reviewDay()))}</p><p class="m0">${esc(l.c6)}</p></div>
-      <div class="note">${ICON.alert}<p><strong>${esc(l.c7)}</strong>${esc(l.c8)}</p></div></div>
+      <div class="note">${ICON.alert}<p><strong>${esc(l.c7)}</strong>${esc(l.c8(emergency() ? emergency().shown : ''))}</p></div></div>
       <div class="foot"><button class="btn btn-secondary" data-act="another">${esc(l.c9)}</button></div>`;
   },
 };
@@ -349,6 +360,7 @@ function validate(scr) {
     if (!d.name.trim()) e.name = l.h6;
     const digits = cellDigits(d.cell);
     if (!digits) e.cell = l.h7; else if (digits.length !== 10) e.cell = l.h8(digits.length);
+    if (!d.site.trim()) e.site = l.h10;
   }
   if (scr === 'what') {
     if (d.cat === '') e.cat = l.q22;
@@ -425,7 +437,7 @@ async function send(isRetry) {
   S.result = { num: res.num, prop: propName() };
   if (!res.repeat) store.set('sent', [...sentRecently(), Date.now()]);
   store.set('last', { num: res.num, cat: S.d.cat, at: Date.now() });
-  store.set('profile', { code: S.d.code, freeName: S.d.freeName, freeCity: S.d.freeCity, apt: S.d.apt, name: S.d.name, cell: S.d.cell, site: S.d.site });
+  store.set('profile', { code: S.d.code, freeName: S.d.freeName, freeCity: S.d.freeCity, apt: S.d.apt, name: S.d.name, cell: S.d.cell, site: S.d.site, supervisor: S.d.supervisor });
   store.del('draft'); store.del('unsent');
   S.attempts = 0; S.history = []; S.screen = 'done'; render();
 }
@@ -460,7 +472,7 @@ function openSheet() {
   $('#propSearch').addEventListener('input', (e) => draw(e.target.value));
 }
 function closeSheet() { const sh = $('#sheet'); if (sh.open) sh.close(); }
-$('#sheet').addEventListener('close', () => { const b = $('#f-code') || $('[data-act="pick"]'); if (b) b.focus(); });
+$('#sheet').addEventListener('close', () => { const b = $('#callLink') || $('#f-code') || $('[data-act="pick"]'); if (b) b.focus(); });
 
 /* ── dialogs on opening ── */
 function prompt(kind, saved) {
@@ -502,7 +514,11 @@ function act(a, el) {
     case 'notEmerg': { const i = S.tapped; S.history = []; S.screen = 'emergency'; render(`[data-act="emerg"][data-i="${i}"]`); break; }
     case 'pick': openSheet(); break;
     case 'closeSheet': closeSheet(); break;
-    case 'choose': S.d.code = el.dataset.code; S.d.freeName = ''; S.d.freeCity = ''; S.qrUnknown = false; S.goneNote = ''; S.fromQR = false; delete S.errors.code; closeSheet(); render('#f-code'); saveDraft(); break;
+    case 'choose':
+      S.d.code = el.dataset.code; S.d.freeName = ''; S.d.freeCity = ''; S.qrUnknown = false; S.goneNote = ''; S.fromQR = false; delete S.errors.code; closeSheet();
+      // Chosen from the call screen: show that property's emergency number straight away.
+      if (S.screen === 'call' || S.screen === 'maybe') { render('#callLink'); break; }
+      render('#f-code'); saveDraft(); break;
     case 'notListed': closeSheet(); S.d.code = ''; go('notlisted'); break;
     case 'notlistedNext': if (validate('notlisted')) { S.history.pop(); S.screen = 'where'; S.errors = {}; render('#f-apt'); saveDraft(); } break;
     case 'editProfile': S.editProfile = true; render('#f-apt'); break;
@@ -540,7 +556,7 @@ function act(a, el) {
       break;
     }
     case 'another': {
-      const keep = { code: S.d.code, freeName: S.d.freeName, freeCity: S.d.freeCity, apt: S.d.apt, name: S.d.name, cell: S.d.cell, site: S.d.site };
+      const keep = { code: S.d.code, freeName: S.d.freeName, freeCity: S.d.freeCity, apt: S.d.apt, name: S.d.name, cell: S.d.cell, site: S.d.site, supervisor: S.d.supervisor };
       S.d = Object.assign(blank(), keep); S.clientId = uuid(); S.photos = []; S.maybeDone = false; S.matched = '';
       S.returning = true; S.editProfile = false; S.fromQR = false; S.history = []; S.result = null; S.failKind = ''; S.attempts = 0;
       go('emergency', false); break;
@@ -639,7 +655,8 @@ function begin(fresh) {
   const code = (new URLSearchParams(location.search).get('p') || '').toLowerCase();
   const profile = store.get('profile');
   if (profile && profile.name) {
-    Object.assign(S.d, profile); S.returning = true;
+    // A profile saved before job site was required goes through "Who are you" once more.
+    Object.assign(S.d, blank(), profile); S.returning = !!profile.site;
     if (S.d.code && !propsFailed && !prop(S.d.code)) { S.d.code = ''; S.returning = false; }
   }
   if (code) {
@@ -658,10 +675,19 @@ function begin(fresh) {
 }
 
 const savedLang = store.get('lang'); if (savedLang === 'en' || savedLang === 'es') S.lang = savedLang;
-// Screen 1 never waits for the network: a worker with an emergency sees the number at once.
+// Screen 1 never waits for the network. The property, and so its emergency number, is known
+// at once from the QR code or the phone's last request, using the list saved on the phone.
+const cachedProps = store.get('props');
+if (cachedProps && Array.isArray(cachedProps.list)) PROPS = cachedProps.list;
+{
+  const qr = (new URLSearchParams(location.search).get('p') || '').toLowerCase();
+  const pr = store.get('profile');
+  S.d.code = qr || (pr && pr.code) || '';
+}
 render();
 loadProperties().then(() => {
   if (S.screen === 'emergency' && !S.history.length) begin(false);
-  else if (S.screen === 'where') render();   // the worker got here before the list arrived
+  // The worker got here before the list arrived: redraw with the property and its number.
+  else if (['where', 'call', 'maybe'].includes(S.screen)) render(S.screen === 'where' ? undefined : '#callLink');
 });
 })();

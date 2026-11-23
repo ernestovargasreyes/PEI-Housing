@@ -6,22 +6,23 @@ const { createHandlers, sniffImage } = require('../api/src/lib/handlers');
 const { createMemoryStore } = require('../api/src/lib/store-memory');
 
 const PROPS = [
-  { code: 'test-vld', name: 'Test Apartments – Valdosta', city: 'Valdosta', state: 'GA', contact: 'secret contact' },
+  { code: 'test-vld', name: 'Test Apartments – Valdosta', city: 'Valdosta', state: 'GA', contact: 'secret contact', submitTo: 'secret@example.com', afterHoursPhone: '229-555-0143' },
   { code: 'old-one', name: 'Old Place', city: 'Albany', state: 'GA', active: false },
 ];
 const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, 1)]);
 const req = (o = {}) => ({
   clientId: crypto.randomUUID(), deviceId: o.deviceId || crypto.randomUUID(), lang: 'en',
-  code: 'test-vld', apt: '104', name: 'Marcus Bell', cell: '2295550188',
+  code: 'test-vld', apt: '104', name: 'Marcus Bell', cell: '2295550188', site: 'I-85 widening',
   cat: 3, where: 2, desc: 'AC blows warm air.', long: 0, worse: 0, entry: 0, times: [], pets: 0, ...o,
 });
 const setup = (opts) => { const store = createMemoryStore({ properties: PROPS }); return { store, h: createHandlers(store, opts) }; };
 
-test('properties returns active ones with public fields only', async () => {
+test('properties returns active ones with public fields and the after-hours number only', async () => {
   const { h } = setup();
   const r = await h.getProperties();
   assert.equal(r.status, 200);
-  assert.deepEqual(r.json, [{ code: 'test-vld', name: 'Test Apartments – Valdosta', city: 'Valdosta', st: 'GA' }]);
+  assert.deepEqual(r.json, [{ code: 'test-vld', name: 'Test Apartments – Valdosta', city: 'Valdosta', st: 'GA', ah: '(229) 555-0143' }]);
+  assert.doesNotMatch(JSON.stringify(r.json), /secret/);
 });
 
 test('a request is stored and numbered', async () => {

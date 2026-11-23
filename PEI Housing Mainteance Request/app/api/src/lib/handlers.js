@@ -5,7 +5,7 @@
  *
  * Every handler takes { query, headers, body, ip } and returns { status, json }.
  */
-const { validateRequest, toListFields, requestNumber, UUID } = require('./schema');
+const { validateRequest, toListFields, requestNumber, formatPhone, UUID } = require('./schema');
 const { RateLimiter } = require('./ratelimit');
 
 const HOUR = 3600e3;
@@ -48,11 +48,13 @@ function createHandlers(store, opts = {}) {
   async function getProperties() {
     try {
       const list = await properties();
-      // Only what the picker needs. Contacts, submit-to addresses and notes never leave the server.
+      // Only what the picker and the emergency screen need. The after-hours number is the one
+      // contact detail sent: the property handles emergencies, so the worker must be able to call it.
+      // Contact names, submit-to addresses and notes never leave the server.
       return {
         status: 200,
         headers: { 'Cache-Control': 'public, max-age=300' },
-        json: list.map((p) => ({ code: p.code, name: p.name, city: p.city || '', st: p.state || '' })),
+        json: list.map((p) => ({ code: p.code, name: p.name, city: p.city || '', st: p.state || '', ah: formatPhone(p.afterHoursPhone) })),
       };
     } catch (err) {
       log('error', 'properties failed', err);

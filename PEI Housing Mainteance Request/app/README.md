@@ -19,7 +19,7 @@ worker's phone ──▶ web/  (Azure Static Web App: the form)
 | Path | What it is |
 |---|---|
 | `web/` | The form. Plain HTML, CSS and JavaScript, no build step, no web fonts. About 75 KB before photos |
-| `web/config.js` | **The emergency and housing numbers, test mode, and the holiday list.** The only file to edit before launch |
+| `web/config.js` | **The housing number, test mode, and the holiday list.** The only file to edit before launch. Emergency numbers come from each property's After-Hours Phone in SharePoint |
 | `web/i18n.js` | Every string in English and Spanish, from `../copy-worker-form.md` |
 | `api/` | Azure Functions (Node 20). Checks each request, stops repeats and spam, writes to SharePoint |
 | `sharepoint/provision.ps1` | Creates the three lists, their columns and the daily-pass views |
@@ -59,7 +59,8 @@ npm run test:e2e
 
 The form in Chromium at phone size, against the local server. Covers trial cards 1, 2, 3, 5,
 7 and 8 (photo without sign-in, entry permission, Spanish, emergency stop, QR, no signal),
-plus three failed sends, the unsent-request prompt, a returning worker, the property list
+plus the property's own emergency number (from a QR code, chosen on the call screen, or missing),
+the required job site, Virginia and Indiana in the list, three failed sends, the unsent-request prompt, a returning worker, the property list
 failing to load, the "Not ready" bar, and the production Content-Security-Policy.
 Needs Playwright (`npm i -D playwright`, then `npx playwright install chromium`) if your machine doesn't have it.
 
@@ -83,7 +84,12 @@ an Azure subscription Sterling IT approves, and someone who can grant admin cons
 
 It prints the list IDs for step 4. Then add the test property to **Properties**:
 Property `Test Apartments – Valdosta`, Code `test-vld`, City `Valdosta`, State `GA`,
-How to Submit `Email`, Submit To *the trial organizer's address*, Active ✓.
+How to Submit `Email`, Submit To *the trial organizer's address*, After-Hours Phone *a phone the
+trial organizer answers*, Active ✓.
+
+**After-Hours Phone is what the emergency screen shows.** The property handles emergencies, so
+every active property needs its leasing office's after-hours number here (10 digits). Without one,
+the form tells the worker to call their leasing office and shows only the housing number.
 
 Copy real properties over from the Notion "Properties & Maintenance Contacts" list when
 Tonya and Jordan have filled it in. Give each one a short **Code** (lowercase, dashes,
@@ -142,8 +148,9 @@ Follow `sharepoint/forward-flow.md`.
 
 ### 6. Numbers and QR signs
 
-1. Edit `web/config.js`: `emergencyNumber`, `housingNumber`. Keep `testMode: true` for the trial week.
-2. Regenerate the signs with the live address:
+1. Edit `web/config.js`: `housingNumber`. Keep `testMode: true` for the trial week.
+2. Regenerate the signs with the live address. The sign prints one emergency number, so run it once per
+   property with that property's After-Hours Phone:
 
 ```bash
 python3 ../tools/make_signs.py --out signs.html --base-url "https://<your-app>.azurestaticapps.net/" --emergency "<number>" --property "Test Apartments – Valdosta=test-vld"
@@ -176,7 +183,8 @@ The answer lists Test Apartments – Valdosta. Then work through the test cards 
 
 ## Before the January pilot
 
-- [ ] Real emergency and housing numbers in `web/config.js`, `testMode: false`, `npm run check:launch` passes
+- [ ] Real housing number in `web/config.js`, `testMode: false`, `npm run check:launch` passes
+- [ ] An After-Hours Phone on every active property (Tonya is collecting the contacts), checked by calling each one
 - [ ] Real properties in the Properties list, each with a Code; EXAMPLE rows removed
 - [ ] The signature line in the Forward flow's email has the real `housing@` address and number
 - [ ] The Spanish read by a native speaker (`../copy-worker-form.md`)

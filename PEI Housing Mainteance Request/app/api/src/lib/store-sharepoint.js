@@ -4,7 +4,7 @@
  * Microsoft Graph with an app registration (client credentials).
  *
  *   Properties list        — the property and contact list. The form reads Code, Title,
- *                            City, State and Active. Nothing else is read here.
+ *                            City, State, Active and AfterHoursPhone. Nothing else is read here.
  *   Requests list          — the queue Tonya and Jordan work. One item per request.
  *   Request Photos library — one folder per request, named by the request's client ID.
  *
@@ -80,13 +80,13 @@ function createSharePointStore(env = process.env, fetchImpl = fetch) {
   return {
     async listProperties() {
       const out = [];
-      let url = `${items(propList)}?$expand=fields($select=Title,Code,City,State,Active)&$top=500`;
+      let url = `${items(propList)}?$expand=fields($select=Title,Code,City,State,Active,AfterHoursPhone)&$top=500`;
       while (url) {
         const page = await graph('GET', url);
         if (!page) break;
         for (const it of page.value) {
           const f = it.fields || {};
-          out.push({ itemId: it.id, code: String(f.Code || '').trim().toLowerCase(), name: f.Title || '', city: f.City || '', state: f.State || '', active: f.Active === true });
+          out.push({ itemId: it.id, code: String(f.Code || '').trim().toLowerCase(), name: f.Title || '', city: f.City || '', state: f.State || '', afterHoursPhone: f.AfterHoursPhone || '', active: f.Active === true });
         }
         url = page['@odata.nextLink'] || null;
       }

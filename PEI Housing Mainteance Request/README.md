@@ -5,7 +5,7 @@ hotels and apartments for its crews working job sites across **Georgia, Florida,
 and Tennessee**. Plateau does not perform maintenance — the hotel or apartment office does.
 The housing coordinators are a **routing desk**.
 
-**Status:** The Plateau form is built and tested locally; not yet deployed. Code and deploy steps: [`app/README.md`](app/README.md). The emergency and housing numbers are still placeholders.
+**Status:** The Plateau form is built and tested locally; not yet deployed. Code and deploy steps: [`app/README.md`](app/README.md). The housing number is still a placeholder, and each property's after-hours number has to be filled in.
 
 ---
 
