@@ -232,3 +232,17 @@
 - Decided by: Matt
 - Why: Plateau also houses crews in Virginia and Indiana. The pilot itself runs in one state, at Montgomery, AL.
 - Rests on: Matt's written answers, 2026-11-23
+
+## 2026-11-23 · Sized for older field workers: 18px text, 56px tap targets, visible field borders
+- Decided by: Ernest (asked for it); Claude, default (the sizes)
+- Why: Many of the crew are older, read the phone in bright light, and tap with big or gloved fingers.
+  - Body text is 18px; hints and errors are 16 to 17px.
+  - Buttons, answer pills and list rows are 56px tall; checkboxes are 30px; the remove-photo button is 44px.
+  - Field and pill borders are 2px at 4.9:1 contrast, so boxes show in sunlight.
+  - A segment bar sits above "Step 2 of 4", and the back arrow says "Back".
+  - On narrow phones the header title hides while Back shows, rather than wrapping.
+  - The "Copied" message stays 5 seconds.
+- Replaces: "Answer pills and checkbox rows are 48 px tall on the worker form" (2026-11-20).
+- Considered: the iOS libraries in cjwirth/awesome-ios-ui. All 77 are Swift or Objective-C, so none can run in this web form. Their useful patterns (a slide-up picker, labels that stay visible, a sending indicator, a big confirmation) were already in the form.
+- Rejected: Turning "Type of problem" into a list of 14 buttons. The phone's own picker already shows large rows; revisit if the dry run shows people struggling with it.
+- Rests on: Ernest, 2026-11-23; accessibility-worker-form.md

@@ -185,3 +185,44 @@ a.btn { text-decoration: none; }
 .facts dt { color: var(--ink-2); font-size: 14px; padding-top: 1px; }
 .facts dd { margin: 0; overflow-wrap: anywhere; font-weight: 400; }
 @media (max-width: 480px) { .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; } .facts dd { margin-bottom: 8px; } }
+
+/* ── Easier for older field workers (2026-11-23, decisions.md) ──────────────────────────
+   Larger text (18px base), 56px tap targets, field borders at 3:1+ contrast so boxes are
+   visible in sunlight, bigger checkboxes and photo buttons, a visual step bar, and a
+   "Back" word beside the arrow. Overrides the sizes above. */
+:root { --tap: 56px; --field-line: #66717f; }   /* 4.9:1 on white */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --field-line: #8a97a8; } }
+:root[data-theme="dark"] { --field-line: #8a97a8; }
+body { font-size: 18px; }
+h1 { font-size: 30px; }
+.step { font-size: 16px; margin-bottom: -10px; }
+.steps { display: flex; gap: 6px; margin: 0 0 -6px; }
+.steps span { flex: 1; height: 8px; border-radius: 999px; background: var(--line); }
+.steps span.on { background: var(--accent); }
+.lede, .hint, .row small, .card p { font-size: 16px; }
+.label, legend { font-size: 18px; }
+.err { font-size: 17px; }
+.err svg { width: 20px; height: 20px; }
+.banner { font-size: 15px; }
+.signal { font-size: 16px; }
+.langbtn { font-size: 17px; }
+.btn { font-size: 18px; }
+.btn-danger { font-size: 22px; min-height: 64px; }
+.input, select.input, textarea.input, .pickbtn { font-size: 18px; border: 2px solid var(--field-line); }
+.input::placeholder { color: var(--ink-2); opacity: 1; }
+.pill span { border: 2px solid var(--field-line); padding: 0 22px; font-weight: 600; }
+.check { min-height: var(--tap); gap: 16px; }
+.check input { width: 30px; height: 30px; }
+.row { min-height: 60px; }
+.card dt { font-size: 15px; }
+.group { font-size: 15px; }
+.thumb, .addphoto { width: 100px; height: 100px; }
+.addphoto { font-size: 15px; border: 2px dashed var(--field-line); }
+.thumb .x { width: 44px; height: 44px; top: 0; right: 0; }
+.thumb .x svg { width: 20px; height: 20px; }
+.thumb .state, .thumb .retry { font-size: 14px; }
+.iconbtn.back { gap: 4px; padding-inline: 8px 12px; font-weight: 600; font-size: 17px; }
+.toast { font-size: 17px; padding: 12px 18px; }
+dialog h2 { font-size: 26px; }
+/* On narrow phones the title would wrap beside "Back"; the screen heading already says where you are. */
+@media (max-width: 430px) { #backBtn:not([hidden]) + .title { visibility: hidden; } }

@@ -64,7 +64,7 @@ function say(msg, urgent) {
 }
 function toast(msg) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; t.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2600); say(msg);
+  document.body.appendChild(t); setTimeout(() => t.remove(), 5000); say(msg);   // long enough to read twice
 }
 
 /* ── time helpers ── */
@@ -102,7 +102,9 @@ function saveDraft() {
 /* ── rendering ── */
 function head(title, scr) {
   const st = stepOf(scr);
-  return `${st ? `<p class="step" id="stepText">${esc(L().step(st[0], st[1]))}</p>` : ''}<h1 tabindex="-1" ${st ? 'aria-describedby="stepText"' : ''}>${esc(title)}</h1>`;
+  // A bar of segments as well as the words: easier to read at a glance than "Step 2 of 4".
+  const bar = st ? `<div class="steps" aria-hidden="true">${Array.from({ length: st[1] }, (_, i) => `<span class="${i < st[0] ? 'on' : ''}"></span>`).join('')}</div>` : '';
+  return `${bar}${st ? `<p class="step" id="stepText">${esc(L().step(st[0], st[1]))}</p>` : ''}<h1 tabindex="-1" ${st ? 'aria-describedby="stepText"' : ''}>${esc(title)}</h1>`;
 }
 function errLine(id, msg) { return msg ? `<p class="err" id="${id}-err">${ICON.alert}<span>${esc(msg)}</span></p>` : ''; }
 function radios(name, labels, val, legend, opts = {}) {
