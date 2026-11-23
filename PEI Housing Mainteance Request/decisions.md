@@ -28,6 +28,7 @@
 - Why: The coordinators choose from something they have used. Notion is already half built. Freshdesk takes a public form with photos and attaches property replies to the ticket, which is the forwarding loop.
 - Rejected: Microsoft Forms, because file upload needs a signed-in organizational responder; Power Pages, because a public site takes longest and likely needs a security review; Jotform with a spreadsheet, because the queue has no forwarding or reply tracking; property-management software and a custom app, because both are larger than one form and one queue.
 - Rests on: spec/04-platform-options.md; spec/05-resident-intake.md §6
+- Superseded: 2026-11-23, Freshdesk dropped (below).
 
 ## 2026-11-20 · Trial runs 30 Nov to 2 Dec, alongside the baseline week
 - Decided by: Claude, default
@@ -40,6 +41,7 @@
 - Why: The trial week holds without waiting on IT. Microsoft Forms and SharePoint need no new approval; Notion is already Sterling's workspace.
 - Rejected: Delaying the trial until IT answers.
 - Rests on: Ernest, 2026-11-20 ("not sure" on IT approval); matt-message.md
+- Superseded: 2026-11-23, Freshdesk dropped (below).
 
 ## 2026-11-20 · A custom form with a SharePoint queue is the third trial option
 - Decided by: Ernest
@@ -185,6 +187,7 @@
 - Why: Ernest wants the form built from scratch, visible and shareable; the trial compares the Freshdesk version (or Microsoft Forms) with the Plateau form.
 - Rejected: A Notion form and queue as a trial option.
 - Rests on: Ernest, 2026-11-20; trial-platform.md
+- Superseded in part: 2026-11-23, Freshdesk dropped (below); the trial now tries the Plateau form alone.
 
 ## 2026-11-23 · The Plateau form runs on Azure Static Web Apps with a Functions API that writes to SharePoint through Microsoft Graph
 - Decided by: Claude, default (for Ernest to confirm)
@@ -258,3 +261,11 @@
 - Motion is off when the phone asks for reduced motion. Animations release when they finish, so they never sit over the Next or Send button.
 - Fixed on the way: the confirmation check had been drawn in emergency red since the first build. It is now the accent blue.
 - Rests on: Ernest, 2026-11-23
+
+## 2026-11-23 · No Freshdesk: the Plateau form on Microsoft 365 is the platform
+- Decided by: Ernest
+- Why: Ernest: "We're not doing Freshdesk." The Plateau form is built and passed a desk run. It keeps worker names, cell numbers and apartment numbers inside Sterling's Microsoft 365, and Matt was not familiar with Freshdesk and asked for simplicity. The queue is the SharePoint Requests list, the routing data is the SharePoint Properties list, and Forward is a Power Automate flow sending from housing@.
+- Changes: the 7 to 9 Dec trial tries the Plateau form alone and decides whether it is ready for the January pilot (trial-platform.md). If IT has not approved the Azure app and SharePoint access by 4 Dec, the week runs on the dry-run setup (app/DRY-RUN.md) and the queue steps wait.
+- Reverse if: IT will not host the form in Azure or give the app registration access to a SharePoint site. Then the fallback is Microsoft Forms with a SharePoint list, which loses photos without sign-in.
+- Supersedes: "The platform is picked by a one-week trial of Notion and Freshdesk" and "Option B falls back to Microsoft Forms if IT has not approved Freshdesk by 24 Nov" (2026-11-20).
+- Rests on: Ernest, 2026-11-23; Matt's written answers, 2026-11-23
