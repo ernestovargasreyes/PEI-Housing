@@ -1,0 +1,7 @@
+[
+  { "code": "test-vld", "name": "Test Apartments – Valdosta", "city": "Valdosta", "state": "GA" },
+  { "code": "magnolia-vld", "name": "EXAMPLE Magnolia Pointe Apartments", "city": "Valdosta", "state": "GA" },
+  { "code": "oak-tlh", "name": "EXAMPLE Oak Hollow Apartments", "city": "Tallahassee", "state": "FL" },
+  { "code": "cedar-dot", "name": "EXAMPLE Cedar Ridge Apartments", "city": "Dothan", "state": "AL" },
+  { "code": "landing-cha", "name": "EXAMPLE The Landing at Hixson", "city": "Chattanooga", "state": "TN" }
+]

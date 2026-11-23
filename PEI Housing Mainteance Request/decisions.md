@@ -185,3 +185,33 @@
 - Why: Ernest wants the form built from scratch, visible and shareable; the trial compares the Freshdesk version (or Microsoft Forms) with the Plateau form.
 - Rejected: A Notion form and queue as a trial option.
 - Rests on: Ernest, 2026-11-20; trial-platform.md
+
+## 2026-11-23 · The Plateau form runs on Azure Static Web Apps with a Functions API that writes to SharePoint through Microsoft Graph
+- Decided by: Claude, default (for Ernest to confirm)
+- Why: One Azure resource hosts both the static form and its API, the Free plan covers the trial, and the API reaches only the one housing site, because the app registration holds Graph `Sites.Selected` with write on that site alone. No packages besides `@azure/functions`, so there is nothing else to patch.
+- Rejected: Power Automate's HTTP trigger as the form's endpoint, because it is a premium connector and its URL is a bearer secret in a public page; Power Pages, as in the platform decision above; a database outside Microsoft 365, because the queue has to be the SharePoint list.
+- Rests on: trial-platform.md; handoff/README.md "Left to the builder"
+
+## 2026-11-23 · Request numbers come from the SharePoint item ID
+- Decided by: Claude, default
+- Why: HR-(1000 + item ID) is unique and goes up on its own, with no counter to keep in step. The number is shown only after the server has saved the request, as states-worker-form.md requires.
+- Rejected: Numbers made on the phone, because two phones can make the same one; a counter list, because two requests at once can read the same value.
+- Rests on: states-worker-form.md (Every screen)
+
+## 2026-11-23 · Photos upload while the worker fills in the form, into a folder named by the request's ID on the phone
+- Decided by: Claude, default
+- Why: Uploading during screen 4 is what lets the copy say "You can keep going". The form makes the request's ID when it opens, so photos have somewhere to go before the request exists, and sending twice cannot make a second request. The phone shrinks each photo to 1600 px before sending it, so a photo uploads on one bar of signal.
+- Rejected: Sending photos with the request, because one slow photo would hold up the whole request; list-item attachments, because Graph cannot write them.
+- Rests on: states-worker-form.md (4. What's wrong; Same request sent twice)
+
+## 2026-11-23 · A photo the worker removes before sending is deleted; after sending it is kept
+- Decided by: Claude, default
+- Why: A photo removed by mistake, or one showing something private, must not reach the leasing office. Once a request is in, a coordinator may already have forwarded it, so the record stays as it was sent.
+- Rejected: Keeping every uploaded photo.
+- Rests on: context-plateau-maintenance.md (ethical stance)
+
+## 2026-11-23 · Forward sends email only; phone and portal properties get the details mailed to the coordinator
+- Decided by: Claude, default
+- Why: Email is the one method a flow can complete on its own. For a phone or portal property, Forward mails the coordinator who pressed it the details to read out or paste, and leaves the status alone, because nothing has reached the property yet.
+- Rejected: Marking phone and portal requests as sent automatically, because a request marked sent that never reached the property is the failure Days Since Sent exists to catch.
+- Rests on: spec/v1-scope.md §5 (templates); app/sharepoint/forward-flow.md

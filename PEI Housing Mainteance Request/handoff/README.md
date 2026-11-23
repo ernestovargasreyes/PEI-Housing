@@ -43,6 +43,9 @@ This build is the Plateau form in the platform trial: a custom form hosted in St
 
 ## Left to the builder
 
+Built in [`../app/`](../app/README.md). How each item below was settled is in `../decisions.md` (entries dated 2026-11-23).
+
+
 - Visual design: color, type, spacing and motion beyond the journey's Interaction Specifications and the sizes in the accessibility findings
 - Technology: the front-end framework, the Azure hosting service, and how the form writes to the SharePoint list
 - The property code in the QR link: `tools/make_signs.py` appends `?p=<code>` to the form URL, so each row of the property list needs a code column the form looks up

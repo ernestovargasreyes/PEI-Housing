@@ -1,0 +1,20 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/column-formatting.schema.json",
+  "elmType": "button",
+  "customRowAction": {
+    "action": "executeFlow",
+    "actionParams": "{\"id\": \"REPLACE-WITH-FLOW-ID\", \"headerText\": \"Forward to the property\", \"runFlowButtonText\": \"Forward\"}"
+  },
+  "attributes": { "class": "ms-fontColor-themePrimary ms-fontColor-themeDarker--hover" },
+  "style": {
+    "display": "=if([$Status] == 'New' || [$Status] == 'Needs Info', 'inline-flex', 'none')",
+    "border": "none",
+    "background-color": "transparent",
+    "cursor": "pointer",
+    "font-weight": "600"
+  },
+  "children": [
+    { "elmType": "span", "attributes": { "iconName": "Send" }, "style": { "padding-right": "6px" } },
+    { "elmType": "span", "txtContent": "Forward" }
+  ]
+}
