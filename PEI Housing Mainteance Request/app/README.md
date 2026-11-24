@@ -27,6 +27,7 @@ worker's phone ──▶ web/  (Azure Static Web App: the form)
 | `sharepoint/*.column.json` | Column formatting for Days Since Sent and the Forward button |
 | `dev/server.js` | Runs the whole thing locally with no Azure account |
 | `test/` | Unit tests, browser tests at phone size, and the launch check |
+| `web/dashboard.html` | **The coordinators' dashboard:** status tiles, request cards and insights. View-only; Microsoft sign-in, coordinator role only |
 | `DRY-RUN.md` | **A dry run for Matt:** the form on a free Static Web App in memory mode, a results page instead of SharePoint, and the Montgomery test sign |
 
 ## Try it locally
@@ -142,6 +143,24 @@ Static Web App → Settings → Environment variables:
 Without these the API answers 503 and the form keeps showing "Not sent yet", with the
 worker's answers safe on the phone. To try the deployed form before SharePoint is ready, set
 `PEI_STORE=memory` instead (requests are lost when the app restarts; trial only).
+
+### 4a. Coordinators' dashboard
+
+`https://<app>/dashboard` shows every request as a card, status tiles (New, Needs info, Sent to
+property, Reported again, Possible emergency, Fixed), search, and insights (complexes with the
+most requests, most common problems, frequent reporters, complexes where problems get reported
+again). It is view-only: each card links to the request in SharePoint, where it is worked.
+
+It holds worker details, so only signed-in coordinators can open it:
+
+1. Static Web App → **Role management** → **Invite**: provider *Microsoft Entra ID*, the person's
+   work email, role `coordinator`. Do this for Tonya, Jordan and Matt. Each accepts the invite link once.
+2. App setting `PEI_REQUESTS_LIST_URL` = the Requests list's address, for example
+   `https://<tenant>.sharepoint.com/sites/<housing-site>/Lists/Requests`. Without it the cards
+   have no "Open in SharePoint" link.
+
+Anyone else who signs in gets "You need to sign in as a housing coordinator". The worker form stays
+public. The role is checked twice: by the Static Web App's route rules and again by the API.
 
 ### 5. Forward button
 

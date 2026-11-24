@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>Housing requests</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="dash">
+<header class="dash-bar">
+  <h1 class="dash-title">Housing requests</h1>
+  <span class="dash-updated" id="updated" aria-live="polite"></span>
+  <a class="dash-link" href="/.auth/logout">Sign out</a>
+</header>
+<main class="dash-main">
+  <section class="dash-left" aria-label="Requests">
+    <div class="tiles" id="tiles" role="group" aria-label="Filter by status"></div>
+    <div class="dash-tools">
+      <label class="sr" for="q">Search requests</label>
+      <input class="input" id="q" type="search" placeholder="Search number, place, apartment, worker, problem" autocomplete="off">
+      <label class="sr" for="sort">Sort</label>
+      <select class="input" id="sort">
+        <option value="new">Newest first</option>
+        <option value="old">Oldest first</option>
+        <option value="rep">Most reported again</option>
+      </select>
+    </div>
+    <p class="dash-status" id="status" role="status">Loading…</p>
+    <div class="dcards" id="cards"></div>
+  </section>
+  <aside class="dash-right" aria-labelledby="insH">
+    <div class="ins-head">
+      <h2 id="insH">Insights</h2>
+      <label class="sr" for="period">Period</label>
+      <select class="input small" id="period">
+        <option value="30">Last 30 days</option>
+        <option value="90" selected>Last 90 days</option>
+        <option value="0">All time</option>
+      </select>
+    </div>
+    <div id="insights"></div>
+  </aside>
+</main>
+<script src="dashboard.js"></script>
+</body>
+</html>

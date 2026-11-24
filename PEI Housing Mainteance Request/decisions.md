@@ -282,3 +282,11 @@
   - A failed lookup never blocks a request.
 - Rejected: Matching on the exact problem label, because two workers often pick different plumbing labels for the same leak. A 7-day window, because a property that ignores a request for weeks is exactly the case to catch.
 - Rests on: Demo meeting notes, 2026-11-24 (Notion)
+
+## 2026-11-24 · A view-only coordinators' dashboard, signed in with Microsoft
+- Decided by: the demo meeting, 2026-11-24 (a dashboard for Tonya, Jordan and Matt to see trends, frequent reporters and common issues); Ernest (view-only first, styled like InvGate's board); Claude, default (the design)
+- What it shows: status tiles that filter the board, one card per request, search and sort, and insights for 30 or 90 days or all time. The insights are complexes with the most requests, most common problems, frequent reporters, and complexes where problems get reported again: the 80-20 view.
+- Open possible emergencies are pinned to the top. Requests are worked in SharePoint; each card links there.
+- Access: Static Web Apps built-in Microsoft sign-in, with a "coordinator" role given by invitation. The role is checked by the route rules and again in the API, so a config mistake cannot expose worker details.
+- Rejected for now: working requests from the dashboard (status, owner, Forward), because it doubles the work while SharePoint already does it; Power BI, because of licences and a less direct look.
+- Rests on: Demo meeting notes, 2026-11-24; Ernest, 2026-11-24

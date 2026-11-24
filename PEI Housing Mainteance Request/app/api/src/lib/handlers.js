@@ -184,7 +184,44 @@ function createHandlers(store, opts = {}) {
     return { status: 200, json: rows.slice().reverse() };
   }
 
-  return { getProperties, postRequest, postPhoto, deletePhoto, dryRunList };
+  /* Coordinators' dashboard (view-only). Callers must already be signed in as a coordinator:
+     the Static Web App route and index.js both check. Returns every request with the fields the
+     board and the insights need; counting and grouping happen in the browser. */
+  async function dashboard() {
+    try {
+      const [rows, props] = await Promise.all([store.listRequests(), store.listProperties()]);
+      const names = new Map(props.map((p) => [p.code, p.name]));
+      const listUrl = opts.requestsListUrl ? String(opts.requestsListUrl).replace(/\/+$/, '') : '';
+      const requests = rows.map((r) => ({
+        num: r.Title,
+        created: r.created,
+        status: r.Status || 'New',
+        place: r.PropertyCode ? (names.get(r.PropertyCode) || r.PropertyCode) : (r.PlaceNotListed ? `${r.PlaceNotListed} (not on the list)` : ''),
+        apt: r.Apartment || '',
+        worker: r.WorkerName || '',
+        cell: r.WorkerCell || '',
+        jobSite: r.JobSite || '',
+        supervisor: r.Supervisor || '',
+        problem: r.ProblemType || '',
+        category: r.CategoryCode || '',
+        where: r.WhereInUnit || '',
+        desc: r.ProblemDescription || '',
+        lang: r.FormLanguage || '',
+        photos: Number(r.PhotoCount) || 0,
+        emergency: r.PossibleEmergency || '',
+        repeatOf: r.RepeatOf || '',
+        repeatCount: Number(r.RepeatCount) || 0,
+        sentOn: r.SentOn || '',
+        link: listUrl && r.itemId ? `${listUrl}/DispForm.aspx?ID=${encodeURIComponent(r.itemId)}` : '',
+      })).sort((a, b) => String(b.created).localeCompare(String(a.created)));
+      return { status: 200, json: { generatedAt: new Date(now()).toISOString(), requests } };
+    } catch (err) {
+      log('error', 'dashboard failed', err);
+      return { status: 503, json: { error: 'unavailable' } };
+    }
+  }
+
+  return { getProperties, postRequest, postPhoto, deletePhoto, dryRunList, dashboard };
 }
 
 module.exports = { createHandlers, sniffImage, requestNumber, MAX_PHOTO_BYTES };

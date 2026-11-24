@@ -5,6 +5,7 @@
  */
 const { app } = require('@azure/functions');
 const { createHandlers } = require('./lib/handlers');
+const { isCoordinator } = require('./lib/auth');
 
 let handlers = null;
 function getHandlers(context) {
@@ -18,7 +19,10 @@ function getHandlers(context) {
     const { createSharePointStore } = require('./lib/store-sharepoint');
     store = createSharePointStore(process.env);
   }
-  handlers = createHandlers(store, { log: (level, msg, err) => context.error(`${msg}: ${err && err.message}`) });
+  handlers = createHandlers(store, {
+    log: (level, msg, err) => context.error(`${msg}: ${err && err.message}`),
+    requestsListUrl: process.env.PEI_REQUESTS_LIST_URL || '',
+  });
   return handlers;
 }
 
@@ -44,6 +48,19 @@ app.http('requests', {
     let body = null;
     try { body = await req.json(); } catch { return reply({ status: 400, json: { error: 'invalid_json' } }); }
     return reply(await getHandlers(context).postRequest({ body, ip: clientIp(req) }));
+  },
+});
+
+
+// Coordinators' dashboard. staticwebapp.config.json already limits this route to the
+// "coordinator" role; checking again here means a config mistake cannot expose worker details.
+app.http('dashboard', {
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  route: 'dashboard',
+  handler: async (req, context) => {
+    if (!isCoordinator(req.headers.get('x-ms-client-principal'))) return reply({ status: 403, json: { error: 'forbidden' } });
+    return reply(await getHandlers(context).dashboard());
   },
 });
 

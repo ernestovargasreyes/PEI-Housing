@@ -112,6 +112,21 @@ function createSharePointStore(env = process.env, fetchImpl = fetch) {
       return num;
     },
 
+    /* Every request, newest first, with the fields the coordinators' dashboard shows. At 15 to
+       20 requests a week this is a few hundred items a year; capped at 4,000. */
+    async listRequests() {
+      const sel = 'Title,Status,PropertyCode,PlaceNotListed,Apartment,WorkerName,WorkerCell,JobSite,Supervisor,ProblemType,CategoryCode,WhereInUnit,ProblemDescription,FormLanguage,PhotoCount,PossibleEmergency,RepeatOf,RepeatCount,LastRepeatOn,SentOn';
+      const out = [];
+      let url = `${items(reqList)}?$expand=fields($select=${sel})&$top=500`;
+      while (url && out.length < 4000) {
+        const page = await graph('GET', url);
+        if (!page) break;
+        for (const it of page.value) out.push({ itemId: it.id, created: it.createdDateTime, ...(it.fields || {}) });
+        url = page['@odata.nextLink'] || null;
+      }
+      return out;
+    },
+
     async findOpenRepeat(key) {
       // RepeatKey is indexed (provision.ps1). The original is the oldest open request with the key
       // that is not itself a repeat, so every repeat counts against the same original.

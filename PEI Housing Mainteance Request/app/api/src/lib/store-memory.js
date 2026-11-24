@@ -20,7 +20,7 @@ function createMemoryStore({ properties = [], dir = null } = {}) {
     async listProperties() { return props; },
     /* Dry run only: every request with its photo count, as the queue would show it. */
     async listRequests() {
-      return state.requests.map((r) => ({ created: r.created, ...r.fields, PhotoCount: Object.keys(state.photos[r.fields.ClientId] || {}).length }));
+      return state.requests.map((r) => ({ itemId: r.id, created: r.created, ...r.fields, PhotoCount: Object.keys(state.photos[r.fields.ClientId] || {}).length }));
     },
     async findRequestByClientId(clientId) {
       const r = state.requests.find((x) => x.fields.ClientId === clientId);

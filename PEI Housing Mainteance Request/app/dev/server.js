@@ -43,6 +43,11 @@ function createServer({ dataDir = path.join(__dirname, '..', '.data'), propertie
     try {
       if (url.pathname.startsWith('/api/')) {
         if (ctl.failNext > 0 && req.method === 'POST' && url.pathname === '/api/requests') { ctl.failNext--; return send(res, 503, { error: 'unavailable' }); }
+        // Local only: no Microsoft sign-in here, so the dashboard is open. It only ever holds test
+        // data. On Azure, staticwebapp.config.json and api/src/index.js require the coordinator role.
+        if (url.pathname === '/api/dashboard' && req.method === 'GET') {
+          const r = await handlers.dashboard(); return send(res, r.status, r.json);
+        }
         if (url.pathname === '/api/dryrun/requests' && req.method === 'GET') {
           const r = await handlers.dryRunList({ key: url.searchParams.get('key') || '', expected: dryRunKey }); return send(res, r.status, r.json);
         }
@@ -65,7 +70,8 @@ function createServer({ dataDir = path.join(__dirname, '..', '.data'), propertie
       }
       let file = path.normalize(path.join(WEB, decodeURIComponent(url.pathname)));
       if (!file.startsWith(WEB)) { res.writeHead(403); return res.end(); }
-      if (url.pathname === '/' || !fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(WEB, 'index.html');
+      if (url.pathname === '/dashboard') file = path.join(WEB, 'dashboard.html');
+      else if (url.pathname === '/' || !fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(WEB, 'index.html');
       if (config && path.basename(file) === 'config.js') {
         res.writeHead(200, { 'Content-Type': TYPES['.js'], ...SEC_HEADERS });
         return res.end(`window.PEI_CONFIG = ${JSON.stringify(config)};`);

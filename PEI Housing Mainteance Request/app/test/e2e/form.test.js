@@ -380,6 +380,29 @@ test('a second worker reporting the same problem shows as a repeat to follow up'
   await ctx.close();
 });
 
+test('coordinators\' dashboard: tiles, cards, filters and insights', async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const page = await ctx.newPage();
+  const errors = []; page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+  await page.goto(base + '/dashboard');
+  await page.getByRole('heading', { name: 'Housing requests' }).waitFor();
+  await page.getByText(/open requests?\./).waitFor();
+  const open = srv.store.state.requests.filter((r) => ['New', 'Needs Info', 'Sent to Property'].includes(r.fields.Status)).length;
+  assert.equal(await page.locator('[data-f="open"] .tile-n').textContent(), String(open));
+  assert.ok(await page.locator('.dcard').count() >= 1);
+  await page.getByRole('button', { name: /Reported again/ }).click();
+  await page.getByText(/reported again requests?\./).waitFor();
+  await page.locator('.b-rep').first().waitFor();
+  await page.getByRole('button', { name: /Reported again/ }).click();   // tap again: back to all open
+  await page.getByLabel('Search requests').fill('zzz-nothing');
+  await page.getByText(/^0 open requests matching the search\./).waitFor();
+  await page.getByLabel('Search requests').fill('');
+  await page.getByRole('heading', { name: 'Complexes with the most requests' }).waitFor();
+  await page.getByRole('heading', { name: 'Frequent reporters (2 or more)' }).waitFor();
+  assert.deepEqual(errors, []);
+  await ctx.close();
+});
+
 test('the form shows "Not ready" while the numbers are placeholders', async () => {
   const s2 = createServer({ dataDir: null, config: { housingNumber: '(XXX) XXX-XXXX', testMode: false } });
   await new Promise((r) => s2.server.listen(0, r));

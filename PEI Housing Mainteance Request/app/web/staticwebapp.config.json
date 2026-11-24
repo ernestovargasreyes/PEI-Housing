@@ -1,10 +1,20 @@
 {
   "platform": { "apiRuntime": "node:20" },
-  "navigationFallback": { "rewrite": "/index.html", "exclude": ["/api/*", "*.{css,js,json,png,svg,ico}"] },
+  "navigationFallback": { "rewrite": "/index.html", "exclude": ["/api/*", "/.auth/*", "*.{css,js,json,png,svg,ico,html}"] },
   "routes": [
+    { "route": "/dashboard", "rewrite": "/dashboard.html" },
+    { "route": "/dashboard.html", "allowedRoles": ["coordinator"] },
+    { "route": "/dashboard.js", "allowedRoles": ["coordinator"] },
+    { "route": "/api/dashboard", "methods": ["GET"], "allowedRoles": ["coordinator"] },
+    { "route": "/.auth/login/github", "statusCode": 404 },
+    { "route": "/.auth/login/x", "statusCode": 404 },
+    { "route": "/.auth/login/twitter", "statusCode": 404 },
     { "route": "/config.js", "headers": { "Cache-Control": "no-cache" } },
     { "route": "/api/*", "methods": ["GET", "POST", "DELETE"], "allowedRoles": ["anonymous"] }
   ],
+  "responseOverrides": {
+    "401": { "redirect": "/.auth/login/aad?post_login_redirect_uri=/dashboard", "statusCode": 302 }
+  },
   "globalHeaders": {
     "Content-Security-Policy": "default-src 'self'; img-src 'self' blob: data:; style-src 'self'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
     "X-Content-Type-Options": "nosniff",
