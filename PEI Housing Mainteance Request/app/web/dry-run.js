@@ -39,6 +39,8 @@ async function load() {
       <section class="card">
         <h2 class="dry-h">${esc(r.Title)} · ${esc(when(r.created))}</h2>
         ${r.PossibleEmergency ? `<p class="err">Possible emergency: ${esc(r.PossibleEmergency)}</p>` : ''}
+        ${r.RepeatOf ? `<p class="err">Repeat of ${esc(r.RepeatOf)}: the same problem reported again</p>` : ''}
+        ${r.RepeatCount ? `<p class="err">Reported again ${esc(r.RepeatCount)} ${r.RepeatCount === 1 ? 'time' : 'times'}: follow up with the property</p>` : ''}
         <dl class="facts">${FIELDS.map(([k, f]) => `<dt>${esc(k)}</dt><dd>${esc(f(r))}</dd>`).join('')}</dl>
       </section>`).join('');
   } catch {

@@ -95,6 +95,11 @@ Ensure-Field 'Requests' '<Field Type="Number" Name="PhotoCount" StaticName="Phot
 Ensure-Field 'Requests' '<Field Type="Number" Name="PhotosMissing" StaticName="PhotosMissing" DisplayName="Photos Missing" Min="0" Decimals="0" />'
 Ensure-Field 'Requests' '<Field Type="Text" Name="PhotoFolder" StaticName="PhotoFolder" DisplayName="Photo Folder" MaxLength="40" Description="Folder in Request Photos" />'
 Ensure-Field 'Requests' '<Field Type="Text" Name="ClientId" StaticName="ClientId" DisplayName="Client ID" MaxLength="40" Indexed="TRUE" />'
+# Repeats (decided 2026-11-24): coordinators follow up with a property when a request is reported again.
+Ensure-Field 'Requests' '<Field Type="Text" Name="RepeatKey" StaticName="RepeatKey" DisplayName="Repeat Key" MaxLength="200" Indexed="TRUE" Description="Set by the form: place, apartment and kind of problem. Requests with the same key are the same problem." />'
+Ensure-Field 'Requests' '<Field Type="Text" Name="RepeatOf" StaticName="RepeatOf" DisplayName="Repeat Of" MaxLength="20" Description="Set by the form when this repeats an open request. Usually set this one to Duplicate after following up on the original." />'
+Ensure-Field 'Requests' '<Field Type="Number" Name="RepeatCount" StaticName="RepeatCount" DisplayName="Times Reported Again" Min="0" Decimals="0"><Default>0</Default></Field>'
+Ensure-Field 'Requests' '<Field Type="DateTime" Name="LastRepeatOn" StaticName="LastRepeatOn" DisplayName="Last Reported Again" Format="DateTime" />'
 Ensure-Field 'Requests' '<Field Type="Text" Name="DeviceId" StaticName="DeviceId" DisplayName="Device ID" MaxLength="40" />'
 Ensure-Field 'Requests' '<Field Type="Note" Name="ActivityLog" StaticName="ActivityLog" DisplayName="Activity" NumLines="6" RichText="FALSE" />'
 
@@ -115,7 +120,7 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-PnPField -List 'Requests' -Identity 'DaysSinceSent' -Values @{ CustomFormatter = (Get-Content "$here/days-since-sent.column.json" -Raw) } | Out-Null
 
 # ── Views: the daily pass, in order ───────────────────────────────────────────────────
-$cols = 'Title','Forward','Status','Property','Apartment','ProblemType','ProblemDescription','PossibleEmergency','EntryOK','FormLanguage','PhotoCount','Created'
+$cols = 'Title','Forward','Status','RepeatOf','Property','Apartment','ProblemType','ProblemDescription','PossibleEmergency','EntryOK','FormLanguage','PhotoCount','Created'
 function Ensure-View([string] $Title, [string[]] $Fields, [string] $Query, [switch] $Default) {
   if (Get-PnPView -List 'Requests' -Identity $Title -ErrorAction SilentlyContinue) { return }
   Add-PnPView -List 'Requests' -Title $Title -Fields $Fields -Query $Query -SetAsDefault:$Default -Paged -RowLimit 100 | Out-Null
@@ -123,6 +128,7 @@ function Ensure-View([string] $Title, [string[]] $Fields, [string] $Query, [swit
 }
 Ensure-View '1 Triage today' $cols '<Where><Eq><FieldRef Name="Status"/><Value Type="Choice">New</Value></Eq></Where><OrderBy><FieldRef Name="PossibleEmergency" Ascending="FALSE"/><FieldRef Name="Created" Ascending="TRUE"/></OrderBy>' -Default
 Ensure-View '2 Waiting on property' @('Title','DaysSinceSent','Property','Apartment','ProblemType','SentOn','SentMethod','ScheduledFor','Owner','CoordinatorNotes') '<Where><Eq><FieldRef Name="Status"/><Value Type="Choice">Sent to Property</Value></Eq></Where><OrderBy><FieldRef Name="SentOn" Ascending="TRUE"/></OrderBy>'
+Ensure-View '2a Follow up (reported again)' @('Title','RepeatCount','LastRepeatOn','Status','Property','Apartment','ProblemType','SentOn','SentMethod','Owner','CoordinatorNotes') '<Where><And><Geq><FieldRef Name="RepeatCount"/><Value Type="Number">1</Value></Geq><Or><Eq><FieldRef Name="Status"/><Value Type="Choice">Sent to Property</Value></Eq><Or><Eq><FieldRef Name="Status"/><Value Type="Choice">New</Value></Eq><Eq><FieldRef Name="Status"/><Value Type="Choice">Needs Info</Value></Eq></Or></Or></And></Where><OrderBy><FieldRef Name="RepeatCount" Ascending="FALSE"/><FieldRef Name="LastRepeatOn" Ascending="FALSE"/></OrderBy>'
 Ensure-View '3 Whole queue' @('Title','Status','Owner','Property','Apartment','ProblemType','Created','SentOn') '<GroupBy Collapse="FALSE"><FieldRef Name="Status"/></GroupBy><OrderBy><FieldRef Name="Created" Ascending="FALSE"/></OrderBy>'
 Ensure-View 'Needs Info' @('Title','Property','Apartment','WorkerName','WorkerCell','JobSite','Supervisor','ProblemType','ProblemDescription','CoordinatorNotes') '<Where><Eq><FieldRef Name="Status"/><Value Type="Choice">Needs Info</Value></Eq></Where><OrderBy><FieldRef Name="Created" Ascending="TRUE"/></OrderBy>'
 Ensure-View 'Pilot - how it arrived' @('Title','ArrivedBy','Created','Property') '<GroupBy Collapse="TRUE"><FieldRef Name="ArrivedBy"/></GroupBy><OrderBy><FieldRef Name="Created" Ascending="FALSE"/></OrderBy>'

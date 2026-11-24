@@ -95,8 +95,17 @@ function createHandlers(store, opts = {}) {
       const props = await properties().catch(() => []);
       const prop = props.find((p) => p.code === v.propertyCode);
       const photoCount = await store.countPhotos(v.clientId).catch(() => 0);
-      const fields = toListFields(v, { photoCount, now: new Date(now()).toISOString() });
+      const nowIso = new Date(now()).toISOString();
+      const fields = toListFields(v, { photoCount, now: nowIso });
+      // Same place, apartment and kind of problem as a request still open: mark it as a repeat.
+      // A failed lookup never blocks the request; it just goes in unmarked.
+      const original = await store.findOpenRepeat(fields.RepeatKey).catch((err) => { log('error', 'repeat lookup failed', err); return null; });
+      if (original) {
+        fields.RepeatOf = original.num;
+        fields.ActivityLog += `\n${nowIso}  Repeat of ${original.num}`;
+      }
       const num = await store.createRequest(fields, { propertyItemId: prop ? prop.itemId : null });
+      if (original) await store.recordRepeat(original, num, nowIso).catch((err) => log('error', 'repeat count failed', err));
       perPhone.record(v.deviceId);
       perAddress.record(ip);
       return { num };

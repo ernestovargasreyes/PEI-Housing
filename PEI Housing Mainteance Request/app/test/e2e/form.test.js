@@ -350,6 +350,36 @@ test('dry-run results page lists what arrived, and only with the key', async () 
   await ctx.close();
 });
 
+test('a second worker reporting the same problem shows as a repeat to follow up', async () => {
+  const send = async () => {
+    const { ctx, page } = await phone();
+    await page.goto(base);
+    await fillToAccess(page);   // apartment 104, heating or air conditioning
+    await tap(page, 'Send request');
+    await page.getByRole('heading', { name: 'Got it. Your request is in.' }).waitFor();
+    const num = await page.locator('.bignum').textContent();
+    await ctx.close();
+    return num;
+  };
+  const first = await send();
+  const second = await send();
+  // Earlier tests on this server already reported AC in apartment 104, so the original is the
+  // oldest open report of that problem, and both of these point at it.
+  const rows = srv.store.state.requests;
+  const rep = rows.find((r) => r.fields.Title === second);
+  const orig = rows.find((r) => r.fields.Title === rep.fields.RepeatOf);
+  assert.ok(orig, 'the repeat points at an existing request');
+  assert.equal(orig.fields.RepeatOf, undefined, 'the original is not itself a repeat');
+  assert.equal(orig.fields.RepeatKey, rep.fields.RepeatKey);
+  assert.ok(Number(orig.id) < Number(rows.find((r) => r.fields.Title === first).id) || orig.fields.Title === first);
+  assert.ok(orig.fields.RepeatCount >= 1);
+  const { ctx, page } = await phone();
+  await page.goto(base + '/dry-run.html?key=local-dry-run-key');
+  await page.getByText(`Repeat of ${orig.fields.Title}`).first().waitFor();
+  await page.getByText(/Reported again \d+ times?: follow up/).first().waitFor();
+  await ctx.close();
+});
+
 test('the form shows "Not ready" while the numbers are placeholders', async () => {
   const s2 = createServer({ dataDir: null, config: { housingNumber: '(XXX) XXX-XXXX', testMode: false } });
   await new Promise((r) => s2.server.listen(0, r));

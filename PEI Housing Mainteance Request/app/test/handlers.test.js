@@ -159,3 +159,52 @@ test('dry-run list is unavailable on a store without it (SharePoint)', async () 
   const key = 'k'.repeat(20);
   assert.equal((await createHandlers(store).dryRunList({ key, expected: key })).status, 404);
 });
+
+test('repeats: a second report of an open problem is marked and counted on the original', async () => {
+  const { h, store } = setup();
+  const first = await h.postRequest({ body: req({ apt: '104', cat: 3 }), ip: 'x' });
+  const second = await h.postRequest({ body: req({ apt: 'Apt 104', cat: 3, desc: 'Still no AC' }), ip: 'x' });
+  const third = await h.postRequest({ body: req({ apt: '#104', cat: 3 }), ip: 'x' });
+  const rows = store.state.requests;
+  assert.equal(rows[0].fields.RepeatCount, 2);
+  assert.ok(rows[0].fields.LastRepeatOn);
+  assert.match(rows[0].fields.ActivityLog, new RegExp(`Reported again as ${second.json.num}`));
+  assert.equal(rows[1].fields.RepeatOf, first.json.num);
+  assert.equal(rows[2].fields.RepeatOf, first.json.num, 'every repeat points at the original');
+  assert.equal(third.status, 201);
+});
+
+test('repeats: different apartment, problem or place is not a repeat', async () => {
+  const { h, store } = setup();
+  await h.postRequest({ body: req({ apt: '104', cat: 3 }), ip: 'x' });
+  await h.postRequest({ body: req({ apt: '105', cat: 3 }), ip: 'x' });
+  await h.postRequest({ body: req({ apt: '104', cat: 4 }), ip: 'x' });
+  await h.postRequest({ body: req({ code: '', freeName: 'Pine Court', apt: '104', cat: 3 }), ip: 'x' });
+  assert.deepEqual(store.state.requests.map((r) => r.fields.RepeatOf || ''), ['', '', '', '']);
+  assert.equal(store.state.requests[0].fields.RepeatCount || 0, 0);
+});
+
+test('repeats: a closed, fixed or duplicate original starts fresh', async () => {
+  for (const status of ['Fixed', 'Closed', 'Duplicate']) {
+    const { h, store } = setup();
+    await h.postRequest({ body: req({ apt: '104', cat: 3 }), ip: 'x' });
+    store.state.requests[0].fields.Status = status;
+    await h.postRequest({ body: req({ apt: '104', cat: 3 }), ip: 'x' });
+    assert.equal(store.state.requests[1].fields.RepeatOf, undefined, status);
+  }
+});
+
+test('repeats: still matched once the original was sent to the property', async () => {
+  const { h, store } = setup();
+  const first = await h.postRequest({ body: req({ apt: '104', cat: 3 }), ip: 'x' });
+  store.state.requests[0].fields.Status = 'Sent to Property';
+  await h.postRequest({ body: req({ apt: '104', cat: 3 }), ip: 'x' });
+  assert.equal(store.state.requests[1].fields.RepeatOf, first.json.num);
+});
+
+test('repeats: a failed lookup never blocks the request', async () => {
+  const store = createMemoryStore({ properties: PROPS });
+  store.findOpenRepeat = async () => { throw new Error('Graph down'); };
+  const r = await createHandlers(store).postRequest({ body: req(), ip: 'x' });
+  assert.equal(r.status, 201);
+});

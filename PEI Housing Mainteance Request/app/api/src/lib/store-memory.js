@@ -33,6 +33,20 @@ function createMemoryStore({ properties = [], dir = null } = {}) {
       persist();
       return num;
     },
+    async findOpenRepeat(key) {
+      const open = ['New', 'Needs Info', 'Sent to Property'];
+      const r = state.requests.filter((x) => x.fields.RepeatKey === key && open.includes(x.fields.Status) && !x.fields.RepeatOf)
+        .sort((a, b) => a.id - b.id)[0];
+      return r ? { itemId: r.id, num: r.fields.Title } : null;
+    },
+    async recordRepeat(original, num, at) {
+      const r = state.requests.find((x) => x.id === original.itemId);
+      if (!r) return;
+      r.fields.RepeatCount = (r.fields.RepeatCount || 0) + 1;
+      r.fields.LastRepeatOn = at;
+      r.fields.ActivityLog = `${r.fields.ActivityLog || ''}\n${at}  Reported again as ${num}`;
+      persist();
+    },
     async updatePhotoCount(existing, count) {
       const r = state.requests.find((x) => x.id === existing.itemId);
       if (r) { r.fields.PhotoCount = count; r.fields.PhotosMissing = 0; persist(); }

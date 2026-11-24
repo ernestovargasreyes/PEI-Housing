@@ -269,3 +269,16 @@
 - Reverse if: IT will not host the form in Azure or give the app registration access to a SharePoint site. Then the fallback is Microsoft Forms with a SharePoint list, which loses photos without sign-in.
 - Supersedes: "The platform is picked by a one-week trial of Notion and Freshdesk" and "Option B falls back to Microsoft Forms if IT has not approved Freshdesk by 24 Nov" (2026-11-20).
 - Rests on: Ernest, 2026-11-23; Matt's written answers, 2026-11-23
+
+## 2026-11-24 · Repeats are detected automatically and are the follow-up trigger
+- Decided by: the demo meeting, 2026-11-24 (follow up only when a request is submitted two or three times); Claude, default (how a repeat is detected)
+- Why: Coordinators do not chase properties on a timer. A repeat report is the signal, so the queue has to show repeats without anyone spotting them by eye.
+- How it works:
+  - A new request repeats an open one (New, Needs Info or Sent to Property) when the place, the apartment and the kind of problem match. The kind of problem is the category code, so a leak and a toilet are both plumbing.
+  - Apartments are compared loosely: "Apt 214", "#214" and "214" match.
+  - The new request gets *Repeat Of*. The original gets *Times Reported Again*, *Last Reported Again* and a line in its activity log.
+  - View **2a Follow up (reported again)** lists the originals, most-repeated first.
+  - There is no age limit while the original is open. A closed, fixed or duplicate original does not count, so a new problem in the same place starts fresh.
+  - A failed lookup never blocks a request.
+- Rejected: Matching on the exact problem label, because two workers often pick different plumbing labels for the same leak. A 7-day window, because a property that ignores a request for weeks is exactly the case to catch.
+- Rests on: Demo meeting notes, 2026-11-24 (Notion)

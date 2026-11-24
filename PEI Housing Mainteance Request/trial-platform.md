@@ -60,7 +60,7 @@ Done once on Tuesday and once on Wednesday.
 1. Open the Requests list (view **1 Triage today**) and find the new requests.
 2. For each one: check the property and apartment number, check that entry permission is there, and press **Forward**. It is marked Sent to Property.
 3. Mark the request with no entry permission as Needs Info and send the worker a text with what is missing.
-4. Merge the two AC requests for apartment 104: set the second to Duplicate and put the first one's number in Duplicate Of.
+4. Open view **2a Follow up (reported again)**. The second AC report for apartment 104 is marked *Repeat of* the first, and the first shows *Times Reported Again: 1*. Follow up with the property on the first (reply in its email thread), then set the second to Duplicate.
 5. Reply to one forwarded email as if you were the leasing office ("scheduled for Thursday"). Find that reply in `housing@` by the request number and note it on the request.
 6. Close one request as fixed.
 

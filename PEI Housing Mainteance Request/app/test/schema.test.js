@@ -136,3 +136,21 @@ test('the emergency screen strings name the leasing office, not a Plateau 24-hou
   assert.equal(T.en.k3('(334) 555-0177'), 'Call (334) 555-0177');
   assert.equal(T.en.c8(''), "Call your leasing office's emergency line.");
 });
+
+test('apartment numbers compare loosely for repeats', () => {
+  for (const a of ['214', 'Apt 214', 'apt. #214', 'Apartment 214', 'Apartamento 214', ' 214 ', 'Unit 214']) {
+    assert.equal(S.normalizeApt(a), '214', a);
+  }
+  assert.equal(S.normalizeApt('B-12'), 'b12');
+  assert.notEqual(S.normalizeApt('214'), S.normalizeApt('241'));
+});
+
+test('repeat key: place, apartment and kind of problem', () => {
+  const v = S.validateRequest(good({ apt: 'Apt 104', cat: 0 }), known).value;
+  assert.equal(S.repeatKey(v), 'test-vld|104|plumbing');
+  const toilet = S.validateRequest(good({ apt: '#104', cat: 1 }), known).value;
+  assert.equal(S.repeatKey(toilet), S.repeatKey(v), 'leak and toilet are both plumbing');
+  const free = S.validateRequest(good({ code: '', freeName: 'Pine Court', apt: '3', cat: 3 }), known).value;
+  assert.equal(S.repeatKey(free), 'free:pinecourt|3|hvac');
+  assert.equal(S.toListFields(v).RepeatKey, 'test-vld|104|plumbing');
+});

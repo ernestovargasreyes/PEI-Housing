@@ -147,13 +147,33 @@ function toListFields(v, extra = {}) {
     PhotoCount: extra.photoCount ?? 0,
     PhotosMissing: Math.max(0, v.photosExpected - (extra.photoCount ?? 0)),
     PhotoFolder: v.clientId,
+    RepeatKey: repeatKey(v),
     ActivityLog: `${extra.now || new Date().toISOString()}  Arrived by form${v.lang === 'es' ? ' (Spanish)' : ''}`,
   };
 }
 
 const requestNumber = (itemId) => `HR-${1000 + Number(itemId)}`;
 
+/*
+ * Repeat detection (decided 2026-11-24): the coordinators follow up with a property only when
+ * the same problem is reported again. A request repeats an open one when it is for the same
+ * place, the same apartment and the same kind of problem (category code, so "toilet" and
+ * "no hot water" both count as plumbing). Apartment numbers are compared loosely:
+ * "Apt 214", "#214" and "214" are the same apartment.
+ */
+const OPEN_STATUSES = ['New', 'Needs Info', 'Sent to Property'];
+function normalizeApt(v) {
+  return String(v || '').toLowerCase()
+    .replace(/\b(apartamento|apartment|apto|apt|unit|unidad|no|num|number|n[uú]mero)\b\.?/g, ' ')
+    .replace(/[^\p{L}\p{N}]/gu, '');
+}
+function repeatKey(v) {
+  const place = v.propertyCode || 'free:' + String(v.freeName || '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  return `${place}|${normalizeApt(v.apt)}|${CATEGORIES[v.cat][1]}`;
+}
+
 module.exports = {
   CATEGORIES, WHERES, LONGS, WORSES, YESNO, TIMES, PETS, STATES, STATUSES, LIMITS, UUID,
   validateRequest, toListFields, normalizeCell, formatCell, formatPhone, requestNumber,
+  normalizeApt, repeatKey, OPEN_STATUSES,
 };

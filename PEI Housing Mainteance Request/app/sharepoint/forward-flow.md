@@ -136,6 +136,14 @@ requests at the same property, the worker on CC, and urgency language.
   @{concat(outputs('Get_request')?['body/ActivityLog'], decodeUriComponent('%0A'), utcNow(), '  Sent to property by email from housing@ (', triggerOutputs()?['headers/x-ms-user-name'], ')')}
   ```
 
+## Following up on repeats
+
+Coordinators follow up with a property only when a problem is reported again (decided 2026-11-24).
+The form marks a new report of an open problem *Repeat of HR-xxxx* and adds one to *Times Reported
+Again* on the original. View **2a Follow up (reported again)** lists those originals, most-repeated
+first. Follow up by replying in the original email thread (the request number is in the subject),
+using the follow-up template on the Notion project page, then set the repeat to Duplicate.
+
 ## Hook the button to the flow
 
 1. Open the flow's details page. The flow ID is the GUID in the address bar after `/flows/`.

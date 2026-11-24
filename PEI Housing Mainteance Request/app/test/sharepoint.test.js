@@ -79,3 +79,23 @@ test('retries once when Graph throttles, then reports the failure', async () => 
   await assert.rejects(s.createRequest({}, {}), /429/);
   assert.equal(n, 3);
 });
+
+test('finds the oldest open, non-repeat request with the key, and counts a repeat on it', async () => {
+  let patched = null;
+  const g = fakeGraph([
+    ['GET', /lists\/reqs\/items\?.*RepeatKey eq 'test-vld\|104\|hvac'/, () => json(200, { value: [
+      { id: '12', fields: { Title: 'HR-1012', Status: 'Closed' } },
+      { id: '15', fields: { Title: 'HR-1015', Status: 'Sent to Property' } },
+      { id: '18', fields: { Title: 'HR-1018', Status: 'New', RepeatOf: 'HR-1015' } },
+    ] })],
+    ['GET', /lists\/reqs\/items\/15\?/, () => json(200, { id: '15', fields: { RepeatCount: 1, ActivityLog: 'old' } })],
+    ['PATCH', /lists\/reqs\/items\/15\/fields$/, (url, init) => { patched = JSON.parse(init.body); return json(200, {}); }],
+  ]);
+  const s = createSharePointStore(ENV, g.fetchImpl);
+  const original = await s.findOpenRepeat('test-vld|104|hvac');
+  assert.deepEqual(original, { itemId: '15', num: 'HR-1015' });
+  await s.recordRepeat(original, 'HR-1020', '2026-12-08T10:00:00Z');
+  assert.equal(patched.RepeatCount, 2);
+  assert.equal(patched.LastRepeatOn, '2026-12-08T10:00:00Z');
+  assert.equal(patched.ActivityLog, 'old\n2026-12-08T10:00:00Z  Reported again as HR-1020');
+});

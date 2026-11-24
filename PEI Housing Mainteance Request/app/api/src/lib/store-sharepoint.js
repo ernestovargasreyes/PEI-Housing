@@ -112,6 +112,29 @@ function createSharePointStore(env = process.env, fetchImpl = fetch) {
       return num;
     },
 
+    async findOpenRepeat(key) {
+      // RepeatKey is indexed (provision.ps1). The original is the oldest open request with the key
+      // that is not itself a repeat, so every repeat counts against the same original.
+      const page = await graph('GET', `${items(reqList)}?$expand=fields($select=Title,Status,RepeatOf)&$filter=fields/RepeatKey eq ${odataStr(key)}&$top=50`, {
+        headers: { Prefer: 'HonorNonIndexedQueriesWarningMayFailRandomly' },
+      });
+      const open = ['New', 'Needs Info', 'Sent to Property'];
+      const hits = ((page && page.value) || []).filter((it) => open.includes(it.fields.Status) && !it.fields.RepeatOf)
+        .sort((a, b) => Number(a.id) - Number(b.id));
+      return hits.length ? { itemId: hits[0].id, num: hits[0].fields.Title } : null;
+    },
+
+    async recordRepeat(original, num, at) {
+      const it = await graph('GET', `${items(reqList)}/${original.itemId}?$expand=fields($select=RepeatCount,ActivityLog)`);
+      if (!it) return;
+      const f = it.fields || {};
+      await graph('PATCH', `${items(reqList)}/${original.itemId}/fields`, { json: {
+        RepeatCount: (Number(f.RepeatCount) || 0) + 1,
+        LastRepeatOn: at,
+        ActivityLog: `${f.ActivityLog || ''}\n${at}  Reported again as ${num}`,
+      } });
+    },
+
     async updatePhotoCount(existing, count) {
       await graph('PATCH', `${items(reqList)}/${existing.itemId}/fields`, { json: { PhotoCount: count, PhotosMissing: 0 } });
     },
